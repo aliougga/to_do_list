@@ -46,12 +46,12 @@ class _CreateNewTaskState extends State<CreateNewTask> {
   }
 
   /// Formatter l'heure issue de DatePicker en String
-  String formatTimeOfDay(TimeOfDay tod) {
-    //final now = DateTime.now();
-    final dt = DateTime(tod.hour, tod.minute);
-    final format = DateFormat.jm(); //"6:00 AM"
-    return format.format(dt);
-  }
+  // String formatTimeOfDay(TimeOfDay tod) {
+  //   final now = DateTime.now();
+  //   final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
+  //   final format = DateFormat.Hm(); //"6:00 AM"
+  //   return format.format(dt);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
       appBar: AppBar(
         centerTitle: false,
         title: const Text(
-          "Create new task",
+          "Nouvelle tâche",
           style: TextStyle(
             fontSize: 20.0,
           ),
@@ -155,6 +155,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                               initialDate: selectedDate,
                               firstDate: DateTime(2022),
                               lastDate: DateTime(2100),
+                              locale: const Locale("fr", "FR"),
                             );
 
                             if (tempoDate != null) {
@@ -168,90 +169,90 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                           },
                         ),
                         const SizedBox(height: 20.0),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "À quelle heure ?",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.left,
-                            ),
-                            GestureDetector(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: controllerTime,
-                                      enabled: false,
-                                      decoration: const InputDecoration(
-                                          hintText: "Heure de début",
-                                          focusedBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.black)),
-                                          border: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.grey))),
-                                    ),
-                                  ),
-                                  const CircleAvatar(
-                                    backgroundColor: LightColors.kGreen,
-                                    radius: 20.0,
-                                    child: Icon(
-                                      Icons.watch_later,
-                                      size: 20.0,
-                                      color: LightColors.kWhite,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              onTap: () async {
-                                var startTempo = await showTimePicker(
-                                    context: context,
-                                    initialTime: selectedTime);
-                                if (startTempo != null) {
-                                  controllerTime.text =
-                                      formatTimeOfDay(startTempo);
-                                }
-                              },
-                            ),
-                            // const SizedBox(height: 40.0),
-                            // const Text(
-                            //   "Select categorie",
-                            //   style: TextStyle(
-                            //       fontSize: 18, fontWeight: FontWeight.bold),
-                            //   textAlign: TextAlign.left,
-                            // ),
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //   children: [
-                            //     _getDropdown(),
-                            //     GestureDetector(
-                            //       child: const CircleAvatar(
-                            //         backgroundColor: LightColors.kGreen,
-                            //         radius: 20.0,
-                            //         child: Icon(
-                            //           Icons.add,
-                            //           size: 20.0,
-                            //           color: LightColors.kWhite,
-                            //         ),
-                            //       ),
-                            //       onTap: () async {
-                            //         var startTempo = await showTimePicker(
-                            //             context: context,
-                            //             initialTime: selectedTime);
-                            //         if (startTempo != null) {
-                            //           controllerTime.text =
-                            //               formatTimeOfDay(startTempo);
-                            //         }
-                            //       },
-                            //     ),
-                            //   ],
-                            // ),
-                          ],
-                        ),
+                        // Column(
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: [
+                        //     const Text(
+                        //       "À quelle heure ?",
+                        //       style: TextStyle(
+                        //           fontSize: 18, fontWeight: FontWeight.bold),
+                        //       textAlign: TextAlign.left,
+                        //     ),
+                        //     GestureDetector(
+                        //       child: Row(
+                        //         mainAxisAlignment:
+                        //             MainAxisAlignment.spaceBetween,
+                        //         children: [
+                        //           Expanded(
+                        //             child: TextField(
+                        //               controller: controllerTime,
+                        //               enabled: false,
+                        //               decoration: const InputDecoration(
+                        //                   hintText: "Heure de début",
+                        //                   focusedBorder: UnderlineInputBorder(
+                        //                       borderSide: BorderSide(
+                        //                           color: Colors.black)),
+                        //                   border: UnderlineInputBorder(
+                        //                       borderSide: BorderSide(
+                        //                           color: Colors.grey))),
+                        //             ),
+                        //           ),
+                        //           const CircleAvatar(
+                        //             backgroundColor: LightColors.kGreen,
+                        //             radius: 20.0,
+                        //             child: Icon(
+                        //               Icons.watch_later,
+                        //               size: 20.0,
+                        //               color: LightColors.kWhite,
+                        //             ),
+                        //           ),
+                        //         ],
+                        //       ),
+                        //       onTap: () async {
+                        //         var startTempo = await showTimePicker(
+                        //             context: context,
+                        //             initialTime: selectedTime);
+                        //         if (startTempo != null) {
+                        //           controllerTime.text =
+                        //               formatTimeOfDay(startTempo);
+                        //         }
+                        //       },
+                        //     ),
+                        //     // const SizedBox(height: 40.0),
+                        //     // const Text(
+                        //     //   "Select categorie",
+                        //     //   style: TextStyle(
+                        //     //       fontSize: 18, fontWeight: FontWeight.bold),
+                        //     //   textAlign: TextAlign.left,
+                        //     // ),
+                        //     // Row(
+                        //     //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //     //   children: [
+                        //     //     _getDropdown(),
+                        //     //     GestureDetector(
+                        //     //       child: const CircleAvatar(
+                        //     //         backgroundColor: LightColors.kGreen,
+                        //     //         radius: 20.0,
+                        //     //         child: Icon(
+                        //     //           Icons.add,
+                        //     //           size: 20.0,
+                        //     //           color: LightColors.kWhite,
+                        //     //         ),
+                        //     //       ),
+                        //     //       onTap: () async {
+                        //     //         var startTempo = await showTimePicker(
+                        //     //             context: context,
+                        //     //             initialTime: selectedTime);
+                        //     //         if (startTempo != null) {
+                        //     //           controllerTime.text =
+                        //     //               formatTimeOfDay(startTempo);
+                        //     //         }
+                        //     //       },
+                        //     //     ),
+                        //     //   ],
+                        //     // ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:rate_my_app/rate_my_app.dart';
 import 'package:to_do_list/models/category.dart';
 import 'package:to_do_list/models/task.dart';
 import 'package:to_do_list/theme/colors/light_colors.dart';
@@ -33,6 +34,14 @@ class _ListTasksState extends State<ListTasks> {
   void initState() {
     // pressToDelete = false;
     _getListCategories();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await rateMyApp.init();
+      if (mounted && rateMyApp.shouldOpenDialog) {
+        rateMyApp.showRateDialog(context);
+      }
+    });
+
     super.initState();
   }
 
@@ -93,7 +102,9 @@ class _ListTasksState extends State<ListTasks> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(
+                        color: LightColors.kGreen,
+                      ),
                     );
                   }
                   if (snapshot.connectionState == ConnectionState.none) {
@@ -119,7 +130,7 @@ class _ListTasksState extends State<ListTasks> {
                           size: 90.0,
                         ),
                         Text(
-                          "Liste vide ajoutez vos tâches\n en appuyant sur le bouton +",
+                          "Liste vide, ajoutez vos tâches\n en appuyant sur le bouton +",
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 18.0,
@@ -158,9 +169,9 @@ class _ListTasksState extends State<ListTasks> {
                                     ),
                                     Text(
                                       _dateFormatJMA(
-                                          snapshot.data![index].taskDate! +
-                                              " " +
-                                              snapshot.data![index].taskTime!),
+                                          snapshot.data![index].taskDate!
+                                          //snapshot.data![index].taskTime!
+                                          ),
                                       style: TextStyle(
                                           fontSize: 13,
                                           color: _isPassed(snapshot
@@ -241,10 +252,12 @@ class _ListTasksState extends State<ListTasks> {
 
   ///Formattage de date de String de la base en date
   _dateFormatJMA(String dateStr) {
-    if (dateStr.trim().isEmpty)  {
-      return "Aucune date";
+    if (dateStr.trim().isEmpty) {
+      return "aucune date";
     } else {
-      DateFormat dateFormatFInal = DateFormat.MMMMEEEEd();
+      var tag = Localizations.maybeLocaleOf(context)?.toLanguageTag();
+      DateFormat dateFormatFInal = DateFormat.MMMMEEEEd(tag);
+    
       DateFormat dateFormat = DateFormat('yyyy-MM-dd');
       DateTime date = dateFormat.parse(dateStr);
       final now = DateTime.now();
@@ -254,15 +267,15 @@ class _ListTasksState extends State<ListTasks> {
       if (tomorrow.day == date.day &&
           tomorrow.month == date.month &&
           tomorrow.year == date.year) {
-        return "Tomorrow";
+        return "demain";
       } else if (now.day == date.day &&
           now.month == date.month &&
           now.year == date.year) {
-        return "Today";
+        return "aujourd'hui";
       } else if (yesterday.day == date.day &&
           yesterday.month == date.month &&
           yesterday.year == date.year) {
-        return "Yesterday";
+        return "hier";
       } else {
         return dateFormatFInal.format(date);
       }
@@ -372,3 +385,12 @@ class _ListTasksState extends State<ListTasks> {
     );
   }
 }
+
+RateMyApp rateMyApp = RateMyApp(
+  preferencesPrefix: 'Nous évaluer',
+  minDays: 0,
+  minLaunches: 3,
+  remindDays: 2,
+  remindLaunches: 7,
+  googlePlayIdentifier: 'com.alga.to_do_list',
+);

@@ -2,7 +2,7 @@
     package="com.alga.to_do_list">
    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="Liste des tâches"
+        android:label="Liste de tâches"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

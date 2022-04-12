@@ -54,8 +54,8 @@ class DatabaseHelper {
             "$categoryId INTEGER PRIMARY KEY AUTOINCREMENT,"
             "$categoryName TEXT NOT NULL)");  
 
-        db.insert(tableCategory, {categoryId: 1, categoryName: "Default"});
-        db.insert(tableCategory, {categoryId: 2, categoryName: "Completed tasks"});
+        db.insert(tableCategory, {categoryId: 1, categoryName: "Non terminés"});
+        db.insert(tableCategory, {categoryId: 2, categoryName: "Terminés"});
       },
     );
   }

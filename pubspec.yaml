@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations: # Add this line
+    sdk: flutter 
   cupertino_icons: ^1.0.2
 
   image_picker:
@@ -18,9 +20,11 @@ dependencies:
   intl: ^0.17.0
   sqflite:
   path:
+  rate_my_app: ^1.1.2
+  #+google_mobile_ads:
   #path_provider: ^2.0.9
 
-dev_dependencies:
+dev_dependencies: 
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
