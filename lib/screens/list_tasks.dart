@@ -85,6 +85,7 @@ class _ListTasksState extends State<ListTasks> {
                     isAppbarSearch = true;
                   } else {
                     actionIcon = const Icon(Icons.search);
+                    mc = "";
                     isAppbarSearch = false;
                   }
                 },
@@ -257,7 +258,7 @@ class _ListTasksState extends State<ListTasks> {
     } else {
       var tag = Localizations.maybeLocaleOf(context)?.toLanguageTag();
       DateFormat dateFormatFInal = DateFormat.MMMMEEEEd(tag);
-    
+
       DateFormat dateFormat = DateFormat('yyyy-MM-dd');
       DateTime date = dateFormat.parse(dateStr);
       final now = DateTime.now();
