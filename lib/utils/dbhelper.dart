@@ -5,7 +5,7 @@ import 'package:to_do_list/models/task.dart';
 
 class DatabaseHelper {
   static const _databaseName = "taskdb.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
 
   // task table
   static const tableTask = 'task';
@@ -52,10 +52,13 @@ class DatabaseHelper {
 
         await db.execute(" CREATE TABLE $tableCategory ("
             "$categoryId INTEGER PRIMARY KEY AUTOINCREMENT,"
-            "$categoryName TEXT NOT NULL)");  
+            "$categoryName TEXT NOT NULL)");
 
-        db.insert(tableCategory, {categoryId: 1, categoryName: "Non terminés"});
+        db.insert(tableCategory, {categoryId: 1, categoryName: "Par défaut"});
         db.insert(tableCategory, {categoryId: 2, categoryName: "Terminés"});
+        db.insert(tableCategory, {categoryName: "Travail"});
+        db.insert(tableCategory, {categoryName: "Courses"});
+        db.insert(tableCategory, {categoryName: "Sports"});
       },
     );
   }
@@ -65,13 +68,14 @@ class DatabaseHelper {
   // Inserts a row in the database where each key in the Map is a column name
   // and the value is the column value. The return value is the id of the
   // inserted row.
-  Future<int> insert(Task t) async {
+  Future<int> insert(Task t, idc) async {
     Database? db = await instance.database;
     return await db!.insert(tableTask, {
       taskTitle: t.taskTitle,
       taskDate: t.taskDate,
       taskTime: t.taskTime,
-      taskDone: t.isTaskDone
+      taskDone: t.isTaskDone,
+      taskCategory: idc
     });
   }
 
@@ -134,6 +138,35 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> queryAllCategory() async {
     Database? db = await instance.database;
-    return await db!.query(tableCategory);
+    return await db!.query(
+      tableCategory,
+      orderBy: categoryId,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> queryAllCategoryActives() async {
+    Database? db = await instance.database;
+    return await db!.query(
+      tableCategory,
+      where: '$categoryId != ?',
+      whereArgs: [2],
+    );
+  }
+
+  // Future<Category>? queryOneCategory(id) async {
+  //   Database? db = await instance.database;
+  //   List<Map<String, dynamic>> rs = await db!.query(
+  //     tableCategory,
+  //     where: '$categoryId != ?',
+  //     whereArgs: [id]);
+
+  //     return Category.fromMap(rs.first);
+  // }
+
+  Future<int> insertCat(Category c) async {
+    Database? db = await instance.database;
+    return await db!.insert(tableCategory, {
+      categoryName: c.categoryName,
+    });
   }
 }

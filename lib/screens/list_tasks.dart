@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:to_do_list/models/category.dart';
 import 'package:to_do_list/models/task.dart';
 import 'package:to_do_list/theme/colors/light_colors.dart';
+import '../utils/ad_helper.dart';
 import '../utils/dbhelper.dart';
 
 class ListTasks extends StatefulWidget {
@@ -13,6 +17,10 @@ class ListTasks extends StatefulWidget {
 }
 
 class _ListTasksState extends State<ListTasks> {
+//Ads variable
+  late BannerAd _ad;
+  late bool _isAdLoaded = false;
+
   Color color = const Color(0x002d7061);
   Color color2 = const Color(0x00bad1cc);
   final dbHelper = DatabaseHelper.instance;
@@ -34,13 +42,32 @@ class _ListTasksState extends State<ListTasks> {
   void initState() {
     // pressToDelete = false;
     _getListCategories();
-
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       await rateMyApp.init();
       if (mounted && rateMyApp.shouldOpenDialog) {
         rateMyApp.showRateDialog(context);
       }
     });
+
+//Ads initialization
+    _ad = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          // Releases an ad resource when it fails to load
+          ad.dispose();
+        },
+      ),
+    );
+
+    _ad.load();
 
     super.initState();
   }
@@ -204,7 +231,7 @@ class _ListTasksState extends State<ListTasks> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
             child: Container(
               alignment: Alignment.bottomRight,
               child: GestureDetector(
@@ -222,13 +249,20 @@ class _ListTasksState extends State<ListTasks> {
                   ),
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, '/form').then((value) {
-                    setState(() {});
-                  });
+                  Navigator.pushNamed(context, '/form').then(
+                    (v) => onBack(),
+                  );
                 },
               ),
             ),
           ),
+          _isAdLoaded
+              ? Container(
+                  child: AdWidget(ad: _ad),
+                  height: 80.0,
+                  alignment: Alignment.center,
+                )
+              : Container(),
         ],
       ),
     );
@@ -257,7 +291,7 @@ class _ListTasksState extends State<ListTasks> {
       return "aucune date";
     } else {
       var tag = Localizations.maybeLocaleOf(context)?.toLanguageTag();
-      DateFormat dateFormatFInal = DateFormat.MMMMEEEEd(tag);
+      DateFormat dateFormatFInal = DateFormat.yMMMMEEEEd(tag);
 
       DateFormat dateFormat = DateFormat('yyyy-MM-dd');
       DateTime date = dateFormat.parse(dateStr);
@@ -302,7 +336,10 @@ class _ListTasksState extends State<ListTasks> {
           ?.map(
             (value) => DropdownMenuItem(
               value: value,
-              child: Text(value.toString()),
+              child: Text(
+                value.toString(),
+                style: const TextStyle(fontFamily: 'Poppins'),
+              ),
             ),
           )
           .toList(),
@@ -384,6 +421,14 @@ class _ListTasksState extends State<ListTasks> {
       },
       checkColor: LightColors.kGreen,
     );
+  }
+
+  onBack() async {
+    // _idCategory = v;
+    // dropdownValue = await dbHelper.queryOneCategory(v);
+    _getListCategories();
+    _queryByTitle(mc);
+    setState(() {});
   }
 }
 

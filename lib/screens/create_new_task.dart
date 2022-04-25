@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_list/models/task.dart';
 import 'package:to_do_list/theme/colors/light_colors.dart';
+import '../models/category.dart';
+import '../utils/ad_helper.dart';
 import '../utils/dbhelper.dart';
 
 class CreateNewTask extends StatefulWidget {
@@ -12,12 +15,16 @@ class CreateNewTask extends StatefulWidget {
 }
 
 class _CreateNewTaskState extends State<CreateNewTask> {
+  //Ads variable
+  late BannerAd _ad;
+  late bool _isAdLoaded = false;
+
   final dbHelper = DatabaseHelper.instance;
 
   //Les variables pour la gestion des categories
-  // List<Category>? spinnerItems;
-  // int _idCategory = 1;
-  //Category? dropdownValue;
+  List<Category>? spinnerItems;
+  int _idCategory = 1;
+  Category? dropdownValue;
 
   ///Debut des variable pour la gestion des date
   DateFormat dateFormat = DateFormat('yyyy-MM-dd');
@@ -29,9 +36,11 @@ class _CreateNewTaskState extends State<CreateNewTask> {
   TextEditingController controllerDate = TextEditingController();
   TextEditingController controllerTime = TextEditingController();
   TextEditingController controllerTitre = TextEditingController();
+  TextEditingController controllerNomCategorie = TextEditingController();
 
   ///Pour gerer le focus du TextField du titre le focus est active tantque le champ est vide
   FocusNode nodeTitle = FocusNode();
+  FocusNode nodeNomCategorie = FocusNode();
   void _showMessageInScaffold(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -42,6 +51,27 @@ class _CreateNewTaskState extends State<CreateNewTask> {
 
   @override
   void initState() {
+    _getListCategories(1);
+
+    //Ads initialization
+    _ad = BannerAd(
+      adUnitId: AdHelper.banner2AdUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          // Releases an ad resource when it fails to load
+          ad.dispose();
+        },
+      ),
+    );
+
+    _ad.load();
     super.initState();
   }
 
@@ -83,7 +113,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                         const Text(
                           "Qu'allez-vous faire ?",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                              fontSize: 18, color: LightColors.kGreen),
                           textAlign: TextAlign.left,
                         ),
                         TextField(
@@ -122,7 +152,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                         const Text(
                           "Quand ?",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                              fontSize: 18, color: LightColors.kGreen),
                           textAlign: TextAlign.left,
                         ),
                         GestureDetector(
@@ -218,39 +248,33 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                         //         }
                         //       },
                         //     ),
-                        //     // const SizedBox(height: 40.0),
-                        //     // const Text(
-                        //     //   "Select categorie",
-                        //     //   style: TextStyle(
-                        //     //       fontSize: 18, fontWeight: FontWeight.bold),
-                        //     //   textAlign: TextAlign.left,
-                        //     // ),
-                        //     // Row(
-                        //     //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //     //   children: [
-                        //     //     _getDropdown(),
-                        //     //     GestureDetector(
-                        //     //       child: const CircleAvatar(
-                        //     //         backgroundColor: LightColors.kGreen,
-                        //     //         radius: 20.0,
-                        //     //         child: Icon(
-                        //     //           Icons.add,
-                        //     //           size: 20.0,
-                        //     //           color: LightColors.kWhite,
-                        //     //         ),
-                        //     //       ),
-                        //     //       onTap: () async {
-                        //     //         var startTempo = await showTimePicker(
-                        //     //             context: context,
-                        //     //             initialTime: selectedTime);
-                        //     //         if (startTempo != null) {
-                        //     //           controllerTime.text =
-                        //     //               formatTimeOfDay(startTempo);
-                        //     //         }
-                        //     //       },
-                        //     //     ),
-                        //     //   ],
-                        //     // ),
+                        const SizedBox(height: 40.0),
+                        const Text(
+                          "Choisissez une categorie",
+                          style: TextStyle(
+                              fontSize: 18, color: LightColors.kGreen),
+                          textAlign: TextAlign.left,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _getDropdown(),
+                            GestureDetector(
+                              child: const CircleAvatar(
+                                backgroundColor: LightColors.kGreen,
+                                radius: 20.0,
+                                child: Icon(
+                                  Icons.add,
+                                  size: 20.0,
+                                  color: LightColors.kWhite,
+                                ),
+                              ),
+                              onTap: () async {
+                                _getModal();
+                              },
+                            ),
+                          ],
+                        ),
                         //   ],
                         // ),
                       ],
@@ -261,7 +285,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
             child: Container(
               alignment: Alignment.bottomRight,
               child: GestureDetector(
@@ -284,32 +308,46 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                     _showMessageInScaffold("Veuillez saisir le titre.");
                   } else {
                     _insertTask(controllerTitre.text, controllerDate.text,
-                        controllerTime.text, "0");
-                    Navigator.pop(context);
+                        controllerTime.text, "0", _idCategory);
+                    Navigator.pop(context, _idCategory);
                   }
                 },
               ),
             ),
           ),
+          _isAdLoaded
+              ? Container(
+                  child: AdWidget(ad: _ad),
+                  height: 80.0,
+                  alignment: Alignment.center,
+                )
+              : Container(),
         ],
       ),
     );
   }
 
-  // _getListCategories() async {
-  //   final allRows = await dbHelper.queryAllCategory();
-  //   spinnerItems = <Category>[];
-  //   for (var row in allRows) {
-  //     spinnerItems!.add(
-  //       Category.fromMap(row),
-  //     );
-  //   }
-  //   setState(() {
-  //     dropdownValue = spinnerItems!.first;
-  //   });
-  // }
+  _getListCategories(int rang) async {
+    final allRows = await dbHelper.queryAllCategoryActives();
+    spinnerItems = <Category>[];
+    for (var row in allRows) {
+      spinnerItems!.add(
+        Category.fromMap(row),
+      );
+    }
 
-  void _insertTask(title, date, time, isDone) async {
+    if (rang == 0) {
+      setState(() {
+        dropdownValue = spinnerItems!.last;
+      });
+    } else {
+      setState(() {
+        dropdownValue = spinnerItems!.first;
+      });
+    }
+  }
+
+  void _insertTask(title, date, time, isDone, idc) async {
     // row to insert
     Map<String, dynamic> row = {
       DatabaseHelper.taskTitle: title,
@@ -318,7 +356,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
       DatabaseHelper.taskDone: isDone,
     };
     Task t = Task.fromMap(row);
-    await dbHelper.insert(t);
+    await dbHelper.insert(t, idc);
     _showMessageInScaffold('Tâche ajoutée');
   }
 
@@ -335,29 +373,113 @@ class _CreateNewTaskState extends State<CreateNewTask> {
   //   _showMessageInScaffold('inserted row id: $id');
   // }
 
-  // Widget _getDropdown() {
-  //   return DropdownButton<Category>(
-  //     value: dropdownValue,
-  //     icon: const Icon(Icons.arrow_drop_down, color: LightColors.kGreen),
-  //     iconSize: 24,
-  //     isExpanded: false,
-  //     focusColor: LightColors.kVGrey,
-  //     style: const TextStyle(color: LightColors.kGreen, fontSize: 20),
-  //     dropdownColor: LightColors.kVGrey,
-  //     onChanged: (newValue) {
-  //       setState(() {
-  //         dropdownValue = newValue!;
-  //      //   _idCategory = newValue.categryId!;
-  //       });
-  //     },
-  //     items: spinnerItems
-  //         ?.map(
-  //           (value) => DropdownMenuItem(
-  //             value: value,
-  //             child: Text(value.toString()),
-  //           ),
-  //         )
-  //          .toList(),
-  //   );
+  // Future<Category?> _getCategorieById(id) async {
+  //   return await dbHelper.queryOneCategory(id);
   // }
+
+  Widget _getDropdown() {
+    return DropdownButton<Category>(
+      value: dropdownValue,
+      icon: const Icon(Icons.arrow_drop_down, color: LightColors.kGreen),
+      iconSize: 24,
+      isExpanded: false,
+      focusColor: LightColors.kVGrey,
+      style: const TextStyle(color: LightColors.kGreen, fontSize: 20),
+      dropdownColor: LightColors.kVGrey,
+      onChanged: (newValue) {
+        dropdownValue = newValue!;
+        _idCategory = newValue.categryId!;
+        setState(() {});
+      },
+      items: spinnerItems
+          ?.map(
+            (value) => DropdownMenuItem(
+              value: value,
+              child: Text(
+                value.toString(),
+                style: const TextStyle(fontFamily: 'Poppins', color: Colors.black54),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  _getModal() async {
+    return await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            content: Form(
+              // key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                      focusNode: nodeNomCategorie,
+                      controller: controllerNomCategorie,
+                      decoration:
+                          const InputDecoration(hintText: "Entrez le nom"),
+                      onSubmitted: (value) {
+                        if (value.isEmpty) {
+                          FocusScope.of(context).requestFocus(nodeNomCategorie);
+                          _showMessageInScaffold("Veuillez saisir un nom");
+                        } else {
+                          controllerNomCategorie.text = value;
+                        }
+                      }),
+                ],
+              ),
+            ),
+            title: const Text(
+              'Nouvelle categorie',
+              style: TextStyle(color: LightColors.kGreen),
+            ),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: InkWell(
+                      child: const Text('Annuler'),
+                      onTap: () async {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: InkWell(
+                      child: const Text(
+                        'Ajouter',
+                        style: TextStyle(color: LightColors.kGreen),
+                      ),
+                      onTap: () async {
+                        if (controllerNomCategorie.text.isEmpty) {
+                          FocusScope.of(context).requestFocus(nodeNomCategorie);
+                          _showMessageInScaffold("Veuillez saisir un nom");
+                        } else {
+                          await _newCategorie(controllerNomCategorie.text);
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  _newCategorie(str) async {
+    Category c = Category(categoryName: str);
+    _idCategory = await dbHelper.insertCat(c);
+    _getListCategories(0);
+    setState(() {});
+  }
 }
