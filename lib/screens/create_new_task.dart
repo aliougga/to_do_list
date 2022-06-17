@@ -397,7 +397,8 @@ class _CreateNewTaskState extends State<CreateNewTask> {
               value: value,
               child: Text(
                 value.toString(),
-                style: const TextStyle(fontFamily: 'Poppins', color: Colors.black54),
+                style: const TextStyle(
+                    fontFamily: 'Poppins', color: Colors.black54),
               ),
             ),
           )

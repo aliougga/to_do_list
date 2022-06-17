@@ -45,5 +45,6 @@ class _MyAppState extends State<MyApp> {
 RateMyApp rateMyApp = RateMyApp(
   preferencesPrefix: 'Nous noter',
   minDays: 0, // Show rate popup on first day of install.
-  minLaunches: 5, // Show rate popup after 5 launches of app after minDays is passed.
+  minLaunches:
+      5, // Show rate popup after 5 launches of app after minDays is passed.
 );

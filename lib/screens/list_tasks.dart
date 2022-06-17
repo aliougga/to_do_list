@@ -17,7 +17,7 @@ class ListTasks extends StatefulWidget {
 }
 
 class _ListTasksState extends State<ListTasks> {
-//Ads variable
+  //Ads variable
   late BannerAd _ad;
   late bool _isAdLoaded = false;
 
@@ -49,7 +49,7 @@ class _ListTasksState extends State<ListTasks> {
       }
     });
 
-//Ads initialization
+    //Ads initialization
     _ad = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       size: AdSize.banner,
@@ -66,9 +66,7 @@ class _ListTasksState extends State<ListTasks> {
         },
       ),
     );
-
     _ad.load();
-
     super.initState();
   }
 
@@ -249,9 +247,9 @@ class _ListTasksState extends State<ListTasks> {
                   ),
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, '/form').then(
-                    (v) => onBack(),
-                  );
+                  Navigator.pushNamed(context, '/form')
+                      // ignore: avoid_print
+                      .then((v) => onBack(v));
                 },
               ),
             ),
@@ -423,12 +421,26 @@ class _ListTasksState extends State<ListTasks> {
     );
   }
 
-  onBack() async {
-    // _idCategory = v;
-    // dropdownValue = await dbHelper.queryOneCategory(v);
-    _getListCategories();
-    _queryByTitle(mc);
+  onBack(v) async {
+    _idCategory = v;
+
+    final allRows = await dbHelper.queryAllCategory();
+    spinnerItems = <Category>[];
+    for (var row in allRows) {
+      spinnerItems!.add(
+        Category.fromMap(row),
+      );
+    }
+
+    dropdownValue =
+        spinnerItems!.firstWhere((element) => element.categryId == v);
+
     setState(() {});
+
+    // dropdownValue = await dbHelper.queryOneCategory(v);
+    // _getListCategories();
+    //_queryByTitle(mc);
+    //setState(() {});
   }
 }
 
