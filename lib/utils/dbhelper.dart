@@ -2,6 +2,8 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:to_do_list/models/category.dart';
 import 'package:to_do_list/models/task.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:to_do_list/utils/navigator_context.dart';
 
 class DatabaseHelper {
   static const _databaseName = "taskdb.db";
@@ -22,10 +24,11 @@ class DatabaseHelper {
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
-  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
+  static DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   // only have a single app-wide reference to the database
   static Database? _database;
+
   Future<Database?> get database async {
     if (_database != null) {
       return _database;
@@ -54,11 +57,33 @@ class DatabaseHelper {
             "$categoryId INTEGER PRIMARY KEY AUTOINCREMENT,"
             "$categoryName TEXT NOT NULL)");
 
-        db.insert(tableCategory, {categoryId: 1, categoryName: "Par défaut"});
-        db.insert(tableCategory, {categoryId: 2, categoryName: "Terminés"});
-        db.insert(tableCategory, {categoryName: "Travail"});
-        db.insert(tableCategory, {categoryName: "Courses"});
-        db.insert(tableCategory, {categoryName: "Sports"});
+        db.insert(tableCategory, {
+          categoryId: 1,
+          categoryName: AppLocalizations.of(
+                  NavigationService.navigatorKey.currentContext!)!
+              .catDefault
+        });
+        db.insert(tableCategory, {
+          categoryId: 2,
+          categoryName: AppLocalizations.of(
+                  NavigationService.navigatorKey.currentContext!)!
+              .catEnded
+        });
+        db.insert(tableCategory, {
+          categoryName: AppLocalizations.of(
+                  NavigationService.navigatorKey.currentContext!)!
+              .catJobs
+        });
+        db.insert(tableCategory, {
+          categoryName: AppLocalizations.of(
+                  NavigationService.navigatorKey.currentContext!)!
+              .catCourses
+        });
+        db.insert(tableCategory, {
+          categoryName: AppLocalizations.of(
+                  NavigationService.navigatorKey.currentContext!)!
+              .catSport
+        });
       },
     );
   }

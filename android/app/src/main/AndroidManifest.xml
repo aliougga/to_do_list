@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.alga.to_do_list">
     <uses-permission android:name="android.permission.INTERNET" />
-    <application android:label="Liste de tâches" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
+    <application android:label="@string/app_name" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
         <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
@@ -13,8 +13,10 @@
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java  test app id  ca-app-pub-3940256099942544~3347511713-->
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java  test app id -->
+        <!--Test ID ca-app-pub-3940256099942544~3347511713-->
+        <!-- Final ID ca-app-pub-1244048788776493~5003869885-->
         <meta-data android:name="flutterEmbedding" android:value="2" />
-        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-1244048788776493~5003869885" />
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-3940256099942544~3347511713" />
     </application>
 </manifest>

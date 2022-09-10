@@ -3,9 +3,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_list/models/task.dart';
 import 'package:to_do_list/theme/colors/light_colors.dart';
-import '../models/category.dart';
-import '../utils/ad_helper.dart';
-import '../utils/dbhelper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../models/category.dart';
+import '../../utils/ad_helper.dart';
+import '../../utils/dbhelper.dart';
 
 class CreateNewTask extends StatefulWidget {
   const CreateNewTask({Key? key}) : super(key: key);
@@ -88,9 +90,9 @@ class _CreateNewTaskState extends State<CreateNewTask> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text(
-          "Nouvelle tâche",
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.addTask,
+          style: const TextStyle(
             fontSize: 20.0,
           ),
         ),
@@ -110,9 +112,10 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Qu'allez-vous faire ?",
-                          style: TextStyle(
+                        //titre
+                        Text(
+                          AppLocalizations.of(context)!.labelFieldTitle,
+                          style: const TextStyle(
                               fontSize: 18, color: LightColors.kGreen),
                           textAlign: TextAlign.left,
                         ),
@@ -120,13 +123,14 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                           focusNode: nodeTitle,
                           cursorColor: LightColors.kGreen,
                           cursorHeight: 30,
-                          decoration: const InputDecoration(
-                            hintText: "Entrez le titre",
+                          decoration: InputDecoration(
+                            hintText:
+                                AppLocalizations.of(context)!.hintFieldTitle,
                             hoverColor: LightColors.kGreen,
-                            enabledBorder: UnderlineInputBorder(
+                            enabledBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(color: LightColors.kGreen),
                             ),
-                            focusedBorder: UnderlineInputBorder(
+                            focusedBorder: const UnderlineInputBorder(
                               borderSide: BorderSide(
                                 color: LightColors.kGreen,
                               ),
@@ -137,7 +141,8 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                             if (value.isEmpty) {
                               FocusScope.of(context).requestFocus(nodeTitle);
                               _showMessageInScaffold(
-                                  "Veuillez saisir le titre");
+                                  AppLocalizations.of(context)!
+                                      .titleFieldErrMsg);
                             } else {
                               controllerTitre.text = value;
                             }
@@ -149,9 +154,9 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Quand ?",
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.labelFieldDate,
+                          style: const TextStyle(
                               fontSize: 18, color: LightColors.kGreen),
                           textAlign: TextAlign.left,
                         ),
@@ -163,8 +168,9 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                 child: TextField(
                                   controller: controllerDate,
                                   enabled: false,
-                                  decoration: const InputDecoration(
-                                    hintText: "Sélectionnez une date",
+                                  decoration: InputDecoration(
+                                    hintText: AppLocalizations.of(context)!
+                                        .hintFieldDate,
                                   ),
                                 ),
                               ),
@@ -185,7 +191,8 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                               initialDate: selectedDate,
                               firstDate: DateTime(2022),
                               lastDate: DateTime(2100),
-                              locale: const Locale("fr", "FR"),
+                              locale: Locale(
+                                  AppLocalizations.of(context)!.localCalender),
                             );
 
                             if (tempoDate != null) {
@@ -249,9 +256,9 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                         //       },
                         //     ),
                         const SizedBox(height: 40.0),
-                        const Text(
-                          "Choisissez une categorie",
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.labelFieldCategory,
+                          style: const TextStyle(
                               fontSize: 18, color: LightColors.kGreen),
                           textAlign: TextAlign.left,
                         ),
@@ -284,37 +291,6 @@ class _CreateNewTaskState extends State<CreateNewTask> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
-            child: Container(
-              alignment: Alignment.bottomRight,
-              child: GestureDetector(
-                child: Card(
-                  elevation: 20,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100)),
-                  child: const CircleAvatar(
-                    backgroundColor: LightColors.kWhite,
-                    radius: 30,
-                    child: Icon(
-                      Icons.check,
-                      color: LightColors.kGreen,
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  if (controllerTitre.text.isEmpty) {
-                    FocusScope.of(context).requestFocus(nodeTitle);
-                    _showMessageInScaffold("Veuillez saisir le titre.");
-                  } else {
-                    _insertTask(controllerTitre.text, controllerDate.text,
-                        controllerTime.text, "0", _idCategory);
-                    Navigator.pop(context, _idCategory);
-                  }
-                },
-              ),
-            ),
-          ),
           _isAdLoaded
               ? Container(
                   child: AdWidget(ad: _ad),
@@ -323,6 +299,24 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                 )
               : Container(),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: LightColors.kWhite,
+        onPressed: (() {
+          if (controllerTitre.text.isEmpty) {
+            FocusScope.of(context).requestFocus(nodeTitle);
+            _showMessageInScaffold(
+                AppLocalizations.of(context)!.titleFieldErrMsg);
+          } else {
+            _insertTask(controllerTitre.text, controllerDate.text,
+                controllerTime.text, "0", _idCategory);
+            Navigator.pop(context, _idCategory);
+          }
+        }),
+        child: const Icon(
+          Icons.check,
+          color: LightColors.kGreen,
+        ),
       ),
     );
   }
@@ -357,7 +351,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
     };
     Task t = Task.fromMap(row);
     await dbHelper.insert(t, idc);
-    _showMessageInScaffold('Tâche ajoutée');
+    _showMessageInScaffold(AppLocalizations.of(context)!.taskAddedMsg);
   }
 
   // void _insertCategory(title, date, time, isDone) async {
@@ -420,12 +414,13 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                   TextField(
                       focusNode: nodeNomCategorie,
                       controller: controllerNomCategorie,
-                      decoration:
-                          const InputDecoration(hintText: "Entrez le nom"),
+                      decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.nameCatLabel),
                       onSubmitted: (value) {
                         if (value.isEmpty) {
                           FocusScope.of(context).requestFocus(nodeNomCategorie);
-                          _showMessageInScaffold("Veuillez saisir un nom");
+                          _showMessageInScaffold(
+                              AppLocalizations.of(context)!.nameCatErrMsg);
                         } else {
                           controllerNomCategorie.text = value;
                         }
@@ -433,9 +428,9 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                 ],
               ),
             ),
-            title: const Text(
-              'Nouvelle categorie',
-              style: TextStyle(color: LightColors.kGreen),
+            title: Text(
+              AppLocalizations.of(context)!.addCategory,
+              style: const TextStyle(color: LightColors.kGreen),
             ),
             actions: <Widget>[
               Row(
@@ -444,7 +439,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: InkWell(
-                      child: const Text('Annuler'),
+                      child: Text(AppLocalizations.of(context)!.cancelButton),
                       onTap: () async {
                         Navigator.of(context).pop();
                       },
@@ -453,14 +448,15 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: InkWell(
-                      child: const Text(
-                        'Ajouter',
-                        style: TextStyle(color: LightColors.kGreen),
+                      child: Text(
+                        AppLocalizations.of(context)!.addButton,
+                        style: const TextStyle(color: LightColors.kGreen),
                       ),
                       onTap: () async {
                         if (controllerNomCategorie.text.isEmpty) {
                           FocusScope.of(context).requestFocus(nodeNomCategorie);
-                          _showMessageInScaffold("Veuillez saisir un nom");
+                          _showMessageInScaffold(
+                              AppLocalizations.of(context)!.nameCatErrMsg);
                         } else {
                           await _newCategorie(controllerNomCategorie.text);
                           Navigator.of(context).pop();

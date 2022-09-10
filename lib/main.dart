@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:rate_my_app/rate_my_app.dart';
-import 'package:to_do_list/screens/create_new_task.dart';
-import 'package:to_do_list/screens/list_tasks.dart';
+import 'package:to_do_list/screens/create_task/create_new_task.dart';
+import 'package:to_do_list/screens/list_task/list_tasks.dart';
 import 'package:to_do_list/theme/theme.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:to_do_list/utils/navigator_context.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,18 +25,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: theme1,
-      title: 'Liste de tâches',
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('fr', "FR")],
+      navigatorKey: NavigationService.navigatorKey,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       initialRoute: '/',
       routes: {
         '/list': (context) => const ListTasks(),
         '/form': (context) => const CreateNewTask(),
       },
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
       home: const ListTasks(),
       debugShowCheckedModeBanner: false,
     );
