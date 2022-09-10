@@ -40,35 +40,32 @@ class _ListTasksState extends State<ListTasks> {
   int _idToUpdateOrDelete = -1;
 
   //L'AppBar
-  late AppBar _myAppBar;
+  // late AppBar _myAppBar;
   //Mot clé
   String mc = "";
   List<Task>? tasksByTitle;
 
-  AppBar _customAppBar(title, actions) {
-    return AppBar(
-      title: title,
-      actions: [
-        actions!,
-      ],
-    );
-  }
+  // AppBar _customAppBar(title, actions) {
+  //   return AppBar(
+  //     title: title,
+  //     actions: [
+  //       actions!,
+  //     ],
+  //   );
+  // }
 
-  AppBar _customAppBarWithLeading(actions, leading) {
-    return AppBar(
-      actions: [actions],
-      leading: leading,
-    );
-  }
+  // AppBar _customAppBarWithLeading(actions, leading) {
+  //   return AppBar(
+  //     actions: [actions],
+  //     leading: leading,
+  //   );
+  // }
 
   @override
   void initState() {
     // pressToDelete = false;
     _getListCategories();
-    _myAppBar = _customAppBar(
-      _getDropdown(),
-      _defaultAppBarAction(),
-    );
+    _appBarRound = 0;
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       await rateMyApp.init();
@@ -108,7 +105,59 @@ class _ListTasksState extends State<ListTasks> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _myAppBar,
+      appBar: AppBar(
+        title: _appBarRound == 0
+            ? _getDropdown()
+            : _appBarRound == 1
+                ? _appBarSearchForm()
+                : Container(),
+        actions: [
+          _appBarRound == 0
+              ? IconButton(
+                  icon: const Icon(Icons.search_outlined),
+                  onPressed: () {
+                    setState(
+                      () {
+                        _appBarRound = 1;
+                      },
+                    );
+                  })
+              : _appBarRound == 1
+                  ? IconButton(
+                      icon: const Icon(Icons.close_outlined),
+                      onPressed: () {
+                        setState(() {
+                          _appBarRound = 0;
+                        });
+                      },
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () {
+                        setState(() {
+                          _appBarRound = 0;
+                          _deleteTask(_idToUpdateOrDelete);
+                        });
+                      },
+                    ),
+        ],
+        leading: _appBarRound == 0
+            ? Container(
+                width: 0.0,
+              )
+            : _appBarRound == 1
+                ? Container(
+                    width: 0.0,
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _appBarRound = 0;
+                      });
+                    },
+                  ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(2.0),
         child: FutureBuilder<List<Task>>(
@@ -221,10 +270,7 @@ class _ListTasksState extends State<ListTasks> {
                       ),
                       onTap: () {
                         setState(() {
-                          _myAppBar = _customAppBar(
-                            _getDropdown(),
-                            _defaultAppBarAction(),
-                          );
+                          _appBarRound = 0;
                         });
                       },
                       onLongPress: () {
@@ -232,10 +278,7 @@ class _ListTasksState extends State<ListTasks> {
                           setState(() {
                             _idToUpdateOrDelete =
                                 snapshot.data![newIndex].taskId!;
-                            _myAppBar = _customAppBarWithLeading(
-                              _widgetDelete(_idToUpdateOrDelete),
-                              _udateAppBarAction(),
-                            );
+                            _appBarRound = 2;
                           });
                         }
                       },
@@ -245,7 +288,9 @@ class _ListTasksState extends State<ListTasks> {
               );
             }
 
-            return Container();
+            return Container(
+              width: MediaQuery.of(context).size.width,
+            );
           },
           future: _queryByTitle(mc),
         ),
@@ -433,10 +478,7 @@ class _ListTasksState extends State<ListTasks> {
         onTap: () {
           setState(() {
             _deleteTask(id);
-            _myAppBar = _customAppBar(
-              _getDropdown(),
-              _defaultAppBarAction(),
-            );
+            _appBarRound = 0;
           });
         },
       ),
@@ -470,10 +512,7 @@ class _ListTasksState extends State<ListTasks> {
     setState(() {
       dropdownValue =
           spinnerItems!.firstWhere((element) => element.categryId == v);
-      _myAppBar = _customAppBar(
-        _getDropdown(),
-        _defaultAppBarAction(),
-      );
+      _appBarRound = 0;
     });
 
     // dropdownValue = await dbHelper.queryOneCategory(v);
@@ -485,50 +524,50 @@ class _ListTasksState extends State<ListTasks> {
   //Modifier les information d'une tache
   // _onClickToUpdate() {}
 
-  Widget _defaultAppBarAction() {
-    return IconButton(
-      icon: const Icon(Icons.search_outlined),
-      onPressed: () {
-        setState(
-          () {
-            _myAppBar = _customAppBar(
-              _appBarSearchForm(),
-              _searchAppBarAction(),
-            );
-          },
-        );
-      },
-    );
-  }
+  // Widget _defaultAppBarAction() {
+  //   return IconButton(
+  //     icon: const Icon(Icons.search_outlined),
+  //     onPressed: () {
+  //       setState(
+  //         () {
+  //           _myAppBar = _customAppBar(
+  //             _appBarSearchForm(),
+  //             _searchAppBarAction(),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
-  Widget _searchAppBarAction() {
-    return IconButton(
-      icon: const Icon(Icons.close_outlined),
-      onPressed: () {
-        setState(() {
-          mc = "";
-          _myAppBar = _customAppBar(
-            _getDropdown(),
-            _defaultAppBarAction(),
-          );
-        });
-      },
-    );
-  }
+  // Widget _searchAppBarAction() {
+  //   return IconButton(
+  //     icon: const Icon(Icons.close_outlined),
+  //     onPressed: () {
+  //       setState(() {
+  //         mc = "";
+  //         _myAppBar = _customAppBar(
+  //           _getDropdown(),
+  //           _defaultAppBarAction(),
+  //         );
+  //       });
+  //     },
+  //   );
+  // }
 
-  Widget _udateAppBarAction() {
-    return IconButton(
-      icon: const Icon(Icons.close),
-      onPressed: () {
-        setState(() {
-          _myAppBar = _customAppBar(
-            _getDropdown(),
-            _defaultAppBarAction(),
-          );
-        });
-      },
-    );
-  }
+  // Widget _udateAppBarAction() {
+  //   return IconButton(
+  //     icon: const Icon(Icons.close),
+  //     onPressed: () {
+  //       setState(() {
+  //         _myAppBar = _customAppBar(
+  //           _getDropdown(),
+  //           _defaultAppBarAction(),
+  //         );
+  //       });
+  //     },
+  //   );
+  // }
 
   // Widget _actionUpdateDelete() {
   //   return Row(
