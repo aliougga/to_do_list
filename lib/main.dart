@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+//import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:to_do_list/screens/create_task/create_new_task.dart';
 import 'package:to_do_list/screens/list_task/list_tasks.dart';
@@ -9,7 +9,7 @@ import 'package:to_do_list/utils/navigator_context.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
+  // MobileAds.instance.initialize();
   return runApp(const MyApp());
 }
 

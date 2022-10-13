@@ -39,8 +39,6 @@ class _ListTasksState extends State<ListTasks> {
   //ID that will be delete
   int _idToUpdateOrDelete = -1;
 
-  //L'AppBar
-  // late AppBar _myAppBar;
   //Mot clé
   String mc = "";
   List<Task>? tasksByTitle;
@@ -110,7 +108,7 @@ class _ListTasksState extends State<ListTasks> {
             ? _getDropdown()
             : _appBarRound == 1
                 ? _appBarSearchForm()
-                : Container(),
+                : null,
         actions: [
           _appBarRound == 0
               ? IconButton(
@@ -127,6 +125,7 @@ class _ListTasksState extends State<ListTasks> {
                       icon: const Icon(Icons.close_outlined),
                       onPressed: () {
                         setState(() {
+                          mc = "";
                           _appBarRound = 0;
                         });
                       },
@@ -142,13 +141,9 @@ class _ListTasksState extends State<ListTasks> {
                     ),
         ],
         leading: _appBarRound == 0
-            ? Container(
-                width: 0.0,
-              )
+            ? null
             : _appBarRound == 1
-                ? Container(
-                    width: 0.0,
-                  )
+                ? null
                 : IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
@@ -158,142 +153,104 @@ class _ListTasksState extends State<ListTasks> {
                     },
                   ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: FutureBuilder<List<Task>>(
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: LightColors.kGreen,
+      body: FutureBuilder<List<Task>>(
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data!.isEmpty) {
+              return Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.task,
+                      color: Colors.grey,
+                      size: 90.0,
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.emptyListLongMsg,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 18.0,
+                      ),
+                      textAlign: TextAlign.center,
+                    )
+                  ],
                 ),
               );
             }
-            if (snapshot.connectionState == ConnectionState.none) {
-              return Center(
-                child: Text(AppLocalizations.of(context)!.failConnMsg),
-              );
-            }
-
-            if (!snapshot.hasData) {
-              return Center(
-                child: Text(AppLocalizations.of(context)!.emptyListMsg),
-              );
-            }
-            if (snapshot.data!.isEmpty) {
-              return Center(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.task,
-                    color: Colors.grey,
-                    size: 90.0,
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.emptyListLongMsg,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 18.0,
-                    ),
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ));
-            }
-
-            if (snapshot.hasData) {
-              return ListView.separated(
-                separatorBuilder: (context, index) => const Divider(),
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: snapshot.data!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  if (_isAdLoaded && index == _kAdIndex) {
-                    return Container(
-                      child: AdWidget(ad: _ad),
-                      height: 80.0,
-                      alignment: Alignment.center,
-                    );
-                  } else {
-                    final int newIndex = _getDestinationItemIndex(index);
-                    return InkWell(
-                      child: ListTile(
-                        selectedColor: LightColors.kGreen,
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+            return ListView.separated(
+              separatorBuilder: (context, index) => const Divider(),
+              scrollDirection: Axis.vertical,
+              itemCount: snapshot.data!.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (_isAdLoaded && index == _kAdIndex) {
+                  return Container(
+                    child: AdWidget(ad: _ad),
+                    height: 80.0,
+                    alignment: Alignment.center,
+                  );
+                } else {
+                  final int newIndex = _getDestinationItemIndex(index);
+                  return InkWell(
+                    onLongPress: () {
+                      if (!snapshot.data![newIndex].isTaskDone!) {
+                        setState(() {
+                          _idToUpdateOrDelete =
+                              snapshot.data![newIndex].taskId!;
+                          _appBarRound = 2;
+                        });
+                      }
+                    },
+                    child: ListTile(
+                      trailing: snapshot.data![newIndex].isTaskDone!
+                          ? _widgetDelete(snapshot.data![newIndex].taskId)
+                          : null,
+                      leading: !snapshot.data![newIndex].isTaskDone!
+                          ? _widgetCheckBox(
+                              snapshot.data![newIndex].isTaskDone!,
+                              snapshot.data![newIndex])
+                          : null,
+                      title: Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            !snapshot.data![newIndex].isTaskDone!
-                                ? _widgetCheckBox(
-                                    snapshot.data![newIndex].isTaskDone!,
-                                    snapshot.data![newIndex])
-                                : Container(),
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    snapshot.data![newIndex].taskTitle!,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      decoration:
-                                          snapshot.data![newIndex].isTaskDone!
-                                              ? TextDecoration.lineThrough
-                                              : TextDecoration.none,
-                                    ),
-                                  ),
-                                  Text(
-                                    _dateFormatJMA(
-                                        snapshot.data![newIndex].taskDate!
-                                        //snapshot.data![index].taskTime!
-                                        ),
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: _isPassed(snapshot
-                                                .data![newIndex].taskDate!)
-                                            ? Colors.red
-                                            : Colors.black),
-                                  ),
-                                ],
+                            Text(
+                              snapshot.data![newIndex].taskTitle!,
+                              style: TextStyle(
+                                fontSize: 18,
+                                decoration: snapshot.data![newIndex].isTaskDone!
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
                               ),
                             ),
-                            snapshot.data![newIndex].isTaskDone!
-                                ? _widgetDelete(snapshot.data![newIndex].taskId)
-                                : Container(),
+                            Text(
+                              _dateFormatJMA(snapshot.data![newIndex].taskDate!
+                                  //snapshot.data![index].taskTime!
+                                  ),
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: _isPassed(
+                                          snapshot.data![newIndex].taskDate!)
+                                      ? Colors.red
+                                      : Colors.black),
+                            ),
                           ],
                         ),
-                        autofocus: false,
-                        dense: true,
                       ),
-                      onTap: () {
-                        setState(() {
-                          _appBarRound = 0;
-                        });
-                      },
-                      onLongPress: () {
-                        if (!snapshot.data![newIndex].isTaskDone!) {
-                          setState(() {
-                            _idToUpdateOrDelete =
-                                snapshot.data![newIndex].taskId!;
-                            _appBarRound = 2;
-                          });
-                        }
-                      },
-                    );
-                  }
-                },
-              );
-            }
-
-            return Container(
-              width: MediaQuery.of(context).size.width,
+                    ),
+                  );
+                }
+              },
             );
-          },
-          future: _queryByTitle(mc),
-        ),
+          }
+
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+        future: _queryByTitle(mc),
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(
