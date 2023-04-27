@@ -549,7 +549,6 @@ class _ListTasksState extends State<ListTasks> {
   //     ],
   // );
   //}
-
 }
 
 RateMyApp rateMyApp = RateMyApp(
