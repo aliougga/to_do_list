@@ -65,7 +65,7 @@ class _ListTasksState extends State<ListTasks> {
     _getListCategories();
     _appBarRound = 0;
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await rateMyApp.init();
       if (mounted && rateMyApp.shouldOpenDialog) {
         rateMyApp.showRateDialog(context);
