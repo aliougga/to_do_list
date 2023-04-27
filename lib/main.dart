@@ -5,7 +5,6 @@ import 'package:rate_my_app/rate_my_app.dart';
 import 'package:to_do_list/screens/create_task/create_new_task.dart';
 import 'package:to_do_list/screens/list_task/list_tasks.dart';
 import 'package:to_do_list/theme/colors/light_colors.dart';
-import 'package:to_do_list/theme/theme.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:to_do_list/utils/custom_material_color.dart';
 import 'package:to_do_list/utils/navigator_context.dart';

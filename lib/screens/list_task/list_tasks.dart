@@ -23,8 +23,7 @@ class _ListTasksState extends State<ListTasks> {
   late bool _isAdLoaded = false;
   static const _kAdIndex = 4;
 
-  // 0 pour default, 1 pour recherche, 2 pour update
-  int _appBarRound = 0;
+  bool _isAppbarSearch = false;
 
   Color color = const Color(0x002d7061);
   Color color2 = const Color(0x00bad1cc);
@@ -63,7 +62,6 @@ class _ListTasksState extends State<ListTasks> {
   void initState() {
     // pressToDelete = false;
     _getListCategories();
-    _appBarRound = 0;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await rateMyApp.init();
@@ -104,54 +102,29 @@ class _ListTasksState extends State<ListTasks> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _appBarRound == 0
-            ? _getDropdown()
-            : _appBarRound == 1
-                ? _appBarSearchForm()
-                : null,
+        title: _isAppbarSearch ? _appBarSearchForm() : _getDropdown(),
         actions: [
-          _appBarRound == 0
+          _isAppbarSearch
               ? IconButton(
+                  icon: const Icon(Icons.close_outlined),
+                  onPressed: () {
+                    setState(() {
+                      mc = "";
+                      _isAppbarSearch = false;
+                    });
+                  },
+                )
+              : IconButton(
                   icon: const Icon(Icons.search_outlined),
                   onPressed: () {
                     setState(
                       () {
-                        _appBarRound = 1;
+                        _isAppbarSearch = true;
                       },
                     );
-                  })
-              : _appBarRound == 1
-                  ? IconButton(
-                      icon: const Icon(Icons.close_outlined),
-                      onPressed: () {
-                        setState(() {
-                          mc = "";
-                          _appBarRound = 0;
-                        });
-                      },
-                    )
-                  : IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () {
-                        setState(() {
-                          _appBarRound = 0;
-                          _deleteTask(_idToUpdateOrDelete);
-                        });
-                      },
-                    ),
+                  },
+                ),
         ],
-        leading: _appBarRound == 0
-            ? null
-            : _appBarRound == 1
-                ? null
-                : IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        _appBarRound = 0;
-                      });
-                    },
-                  ),
       ),
       body: FutureBuilder<List<Task>>(
         builder: (context, snapshot) {
@@ -192,52 +165,53 @@ class _ListTasksState extends State<ListTasks> {
                   );
                 } else {
                   final int newIndex = _getDestinationItemIndex(index);
-                  return InkWell(
-                    onLongPress: () {
-                      if (!snapshot.data![newIndex].isTaskDone!) {
-                        setState(() {
-                          _idToUpdateOrDelete =
-                              snapshot.data![newIndex].taskId!;
-                          _appBarRound = 2;
-                        });
-                      }
+                  return ListTile(
+                    onLongPress: () async {
+                      _modalActionsMenu(snapshot.data![newIndex]);
                     },
-                    child: ListTile(
-                      trailing: snapshot.data![newIndex].isTaskDone!
-                          ? _widgetDelete(snapshot.data![newIndex].taskId)
-                          : null,
-                      leading: !snapshot.data![newIndex].isTaskDone!
-                          ? _widgetCheckBox(
-                              snapshot.data![newIndex].isTaskDone!,
-                              snapshot.data![newIndex])
-                          : null,
-                      title: Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              snapshot.data![newIndex].taskTitle!,
-                              style: TextStyle(
-                                fontSize: 18,
-                                decoration: snapshot.data![newIndex].isTaskDone!
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none,
-                              ),
+                    trailing: snapshot.data![newIndex].isTaskDone!
+                        ? GestureDetector(
+                            child: const Icon(
+                              Icons.delete_outline,
                             ),
-                            Text(
-                              _dateFormatJMA(snapshot.data![newIndex].taskDate!
-                                  //snapshot.data![index].taskTime!
-                                  ),
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  color: _isPassed(
-                                          snapshot.data![newIndex].taskDate!)
-                                      ? Colors.red
-                                      : Colors.black),
+                            onTap: () {
+                              setState(() {
+                                _deleteTask(snapshot.data![newIndex].taskId!);
+                              });
+                            },
+                          )
+                        : GestureDetector(
+                            child: const Icon(Icons.more_vert),
+                            onTap: () async {
+                              _modalActionsMenu(snapshot.data![newIndex]);
+                            },
+                          ),
+                    title: Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            snapshot.data![newIndex].taskTitle!,
+                            style: TextStyle(
+                              fontSize: 18,
+                              decoration: snapshot.data![newIndex].isTaskDone!
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
                             ),
-                          ],
-                        ),
+                          ),
+                          Text(
+                            _dateFormatJMA(snapshot.data![newIndex].taskDate!
+                                //snapshot.data![index].taskTime!
+                                ),
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: _isPassed(
+                                        snapshot.data![newIndex].taskDate!)
+                                    ? Colors.red
+                                    : Colors.black),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -409,50 +383,23 @@ class _ListTasksState extends State<ListTasks> {
   }
 
   ///Marqué la task comme fait ainsi son idCategory est passé à 2 pour cette version
-  void _markAsDone(Task t) async {
+  Future<void> _markAsDone(Task t) async {
     // row to update
     t.isTaskDone = true;
     t.myCategory = 2;
     await dbHelper.update(t);
     _showMessageInScaffold(
         '${t.taskTitle}  ${AppLocalizations.of(context)!.doneMsg}');
+
+    setState(() {});
   }
 
   ///Supprimer un task ddont on passe l'id est passé en paramettre
-  void _deleteTask(id) async {
+  Future<void> _deleteTask(id) async {
     await dbHelper.delete(id);
     _showMessageInScaffold(AppLocalizations.of(context)!.deletedMsg);
-  }
 
-  ///Boutton de suppression
-  Widget _widgetDelete(id) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: GestureDetector(
-        child: const Icon(
-          Icons.delete_outline,
-        ),
-        onTap: () {
-          setState(() {
-            _deleteTask(id);
-            _appBarRound = 0;
-          });
-        },
-      ),
-    );
-  }
-
-  ///Case à cocher
-  Widget _widgetCheckBox(val, data) {
-    return Checkbox(
-      value: val,
-      onChanged: (value) {
-        setState(() {
-          _markAsDone(data);
-        });
-      },
-      checkColor: LightColors.kGreen,
-    );
+    setState(() {});
   }
 
   _onBack(v) async {
@@ -469,7 +416,6 @@ class _ListTasksState extends State<ListTasks> {
     setState(() {
       dropdownValue =
           spinnerItems!.firstWhere((element) => element.categryId == v);
-      _appBarRound = 0;
     });
 
     // dropdownValue = await dbHelper.queryOneCategory(v);
@@ -549,6 +495,34 @@ class _ListTasksState extends State<ListTasks> {
   //     ],
   // );
   //}
+
+  _modalActionsMenu(Task task) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.check),
+              title: const Text('Marquez comme fait'),
+              onTap: () async {
+                await _markAsDone(task);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete),
+              title: const Text('Supprimer'),
+              onTap: () async {
+                await _deleteTask(task.taskId);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 RateMyApp rateMyApp = RateMyApp(
