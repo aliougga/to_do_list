@@ -29,5 +29,8 @@
     "yesterday": "ayer",
     "doneMsg": "¡hecho !",
     "deletedMsg": "¡Tarea eliminada!",
-    "nameCatLabel": "nombre de la categoría"
+    "nameCatLabel": "nombre de la categoría",
+    "msgLabel": "Eliminar",
+    "msgConfirmation": "Confirmación",
+    "msgConfirmToDelete" : "¿Está seguro de que desea eliminar esta tarea?"
 }

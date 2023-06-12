@@ -38,9 +38,10 @@ class _CreateNewTaskState extends State<CreateNewTask> {
   TextEditingController controllerTitre = TextEditingController();
   TextEditingController controllerNomCategorie = TextEditingController();
 
-  ///Pour gerer le focus du TextField du titre le focus est active tantque le champ est vide
+  //Pour gérer le focus du TextField du titre le focus est active tant que le champ est vide
   FocusNode nodeTitle = FocusNode();
   FocusNode nodeNomCategorie = FocusNode();
+
   void _showMessageInScaffold(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -185,7 +186,6 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                         locale:
                             Locale(AppLocalizations.of(context)!.localCalender),
                       );
-
                       if (tempoDate != null) {
                         setState(
                           () {

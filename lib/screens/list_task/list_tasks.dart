@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:to_do_list/models/category.dart';
 import 'package:to_do_list/models/task.dart';
 import 'package:to_do_list/theme/colors/light_colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../utils/ad_helper.dart';
 import '../../utils/dbhelper.dart';
 
 class ListTasks extends StatefulWidget {
@@ -18,11 +16,6 @@ class ListTasks extends StatefulWidget {
 }
 
 class _ListTasksState extends State<ListTasks> {
-  //Ads variable
-  late BannerAd _ad;
-  late bool _isAdLoaded = false;
-  static const _kAdIndex = 4;
-
   bool _isAppbarSearch = false;
 
   Color color = const Color(0x002d7061);
@@ -42,22 +35,6 @@ class _ListTasksState extends State<ListTasks> {
   String mc = "";
   List<Task>? tasksByTitle;
 
-  // AppBar _customAppBar(title, actions) {
-  //   return AppBar(
-  //     title: title,
-  //     actions: [
-  //       actions!,
-  //     ],
-  //   );
-  // }
-
-  // AppBar _customAppBarWithLeading(actions, leading) {
-  //   return AppBar(
-  //     actions: [actions],
-  //     leading: leading,
-  //   );
-  // }
-
   @override
   void initState() {
     // pressToDelete = false;
@@ -70,32 +47,7 @@ class _ListTasksState extends State<ListTasks> {
       }
     });
 
-    //Ads initialization
-    _ad = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {
-            _isAdLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          // Releases an ad resource when it fails to load
-          ad.dispose();
-        },
-      ),
-    );
-    _ad.load();
     super.initState();
-  }
-
-  int _getDestinationItemIndex(int rawIndex) {
-    if (rawIndex >= _kAdIndex && _isAdLoaded) {
-      return rawIndex - 1;
-    }
-    return rawIndex;
   }
 
   @override
@@ -153,71 +105,60 @@ class _ListTasksState extends State<ListTasks> {
               );
             }
             return ListView.separated(
-              separatorBuilder: (context, index) => const Divider(),
-              scrollDirection: Axis.vertical,
-              itemCount: snapshot.data!.length,
-              itemBuilder: (BuildContext context, int index) {
-                if (_isAdLoaded && index == _kAdIndex) {
-                  return Container(
-                    child: AdWidget(ad: _ad),
-                    height: 80.0,
-                    alignment: Alignment.center,
-                  );
-                } else {
-                  final int newIndex = _getDestinationItemIndex(index);
+                separatorBuilder: (context, index) => const Divider(),
+                scrollDirection: Axis.vertical,
+                itemCount: snapshot.data!.length,
+                itemBuilder: (BuildContext context, int index) {
                   return ListTile(
                     onLongPress: () async {
-                      _modalActionsMenu(snapshot.data![newIndex]);
+                      _modalActionsMenu(snapshot.data![index]);
                     },
-                    trailing: snapshot.data![newIndex].isTaskDone!
+                    trailing: snapshot.data![index].isTaskDone!
                         ? GestureDetector(
                             child: const Icon(
                               Icons.delete_outline,
                             ),
                             onTap: () {
                               setState(() {
-                                _deleteTask(snapshot.data![newIndex].taskId!);
+                                _deleteTask(snapshot.data![index].taskId!);
                               });
                             },
                           )
                         : GestureDetector(
                             child: const Icon(Icons.more_vert),
                             onTap: () async {
-                              _modalActionsMenu(snapshot.data![newIndex]);
+                              _modalActionsMenu(snapshot.data![index]);
                             },
                           ),
-                    title: Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            snapshot.data![newIndex].taskTitle!,
-                            style: TextStyle(
-                              fontSize: 18,
-                              decoration: snapshot.data![newIndex].isTaskDone!
-                                  ? TextDecoration.lineThrough
-                                  : TextDecoration.none,
-                            ),
+                    title: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          snapshot.data![index].taskTitle!,
+                          style: TextStyle(
+                            fontSize: 18,
+                            decoration: snapshot.data![index].isTaskDone!
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
                           ),
-                          Text(
-                            _dateFormatJMA(snapshot.data![newIndex].taskDate!
-                                //snapshot.data![index].taskTime!
-                                ),
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: _isPassed(
-                                        snapshot.data![newIndex].taskDate!)
-                                    ? Colors.red
-                                    : Colors.black),
-                          ),
-                        ],
-                      ),
+                        ),
+                        Text(
+                          _dateFormatJMA(snapshot.data![index].taskDate!
+                              //snapshot.data![index].taskTime!
+                              ),
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: _isPassed(snapshot.data![index].taskDate!)
+                                  ? Colors.red
+                                  : Colors.black),
+                        ),
+                      ],
                     ),
                   );
                 }
-              },
-            );
+                // },
+                );
           }
 
           return const Center(
@@ -417,85 +358,8 @@ class _ListTasksState extends State<ListTasks> {
       dropdownValue =
           spinnerItems!.firstWhere((element) => element.categryId == v);
     });
-
-    // dropdownValue = await dbHelper.queryOneCategory(v);
-    // _getListCategories();
-    //_queryByTitle(mc);
-    //setState(() {});
   }
-
-  //Modifier les information d'une tache
-  // _onClickToUpdate() {}
-
-  // Widget _defaultAppBarAction() {
-  //   return IconButton(
-  //     icon: const Icon(Icons.search_outlined),
-  //     onPressed: () {
-  //       setState(
-  //         () {
-  //           _myAppBar = _customAppBar(
-  //             _appBarSearchForm(),
-  //             _searchAppBarAction(),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Widget _searchAppBarAction() {
-  //   return IconButton(
-  //     icon: const Icon(Icons.close_outlined),
-  //     onPressed: () {
-  //       setState(() {
-  //         mc = "";
-  //         _myAppBar = _customAppBar(
-  //           _getDropdown(),
-  //           _defaultAppBarAction(),
-  //         );
-  //       });
-  //     },
-  //   );
-  // }
-
-  // Widget _udateAppBarAction() {
-  //   return IconButton(
-  //     icon: const Icon(Icons.close),
-  //     onPressed: () {
-  //       setState(() {
-  //         _myAppBar = _customAppBar(
-  //           _getDropdown(),
-  //           _defaultAppBarAction(),
-  //         );
-  //       });
-  //     },
-  //   );
-  // }
-
-  // Widget _actionUpdateDelete() {
-  //   return Row(
-  //     children: [
-  //       GestureDetector(
-  //         child: const Icon(
-  //           Icons.delete_outline,
-  //           color: LightColors.kWhite,
-  //         ),
-  //         onTap: () {
-  //           setState(() {
-  //             _deleteTask(_idToUpdateOrDelete);
-  //           });
-  //         },
-  //       ),
-  //       GestureDetector(
-  //         child: const Icon(
-  //           Icons.edit_outlined,
-  //           color: LightColors.kWhite,
-  //         ),
-  //       ),
-  //     ],
-  // );
-  //}
-
+  
   _modalActionsMenu(Task task) {
     showModalBottomSheet(
       context: context,
@@ -514,8 +378,40 @@ class _ListTasksState extends State<ListTasks> {
               leading: const Icon(Icons.delete),
               title: const Text('Supprimer'),
               onTap: () async {
-                await _deleteTask(task.taskId);
-                Navigator.pop(context);
+                Navigator.of(context).pop();
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Confirmation"),
+                      content: const Text(
+                          "Voulez-vous vraiment supprimer cette tâche ?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Annuler'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+
+                            await _deleteTask(task.taskId);
+                            Navigator.pop(context);
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 8.0),
+                            child: Text(
+                              'Supprimer',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
             ),
           ],

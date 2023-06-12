@@ -29,5 +29,8 @@
     "yesterday": "أمس",
     "doneMsg": "تم!",
     "deleteMsg": "المهمة محذوفة!",
-    "nameCatLabel": "اسم الفئة"
+    "nameCatLabel": "اسم الفئة",
+    "msgLabel": "حذف",
+    "msgConfirmation": "تأكيد",
+    "msgConfirmToDelete" : "Are you sure you want to delete this task ?"
 }
