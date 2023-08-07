@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-//import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:rate_my_app/rate_my_app.dart';
-import 'package:to_do_list/screens/create_task/create_new_task.dart';
-import 'package:to_do_list/screens/list_task/list_tasks.dart';
-import 'package:to_do_list/theme/theme.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:to_do_list/utils/navigator_context.dart';
+import 'package:to_do_list/screens/home_screen.dart';
+//import 'package:to_do_list/services/notification_service.dart';
+//import 'package:timezone/timezone.dart' as tz;
+//import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  // MobileAds.instance.initialize();
-  return runApp(const MyApp());
+  // to ensure all the widgets are initialized.
+ // WidgetsFlutterBinding.ensureInitialized();
+
+  // to initialize the notificationservice.
+  //NotificationService().initNotification();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -22,27 +22,34 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+
+   // tz.initializeTimeZones();
+  }
+
+// Thème clair
+  final ThemeData lightTheme = ThemeData(
+    brightness: Brightness.light,
+    primaryColor: Colors.white,
+    //accentColor: Colors.black,
+  );
+
+// Thème sombre
+  final ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    primaryColor: Colors.black,
+
+    //accentColor: Colors.white,
+  );
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: theme1,
-      navigatorKey: NavigationService.navigatorKey,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      initialRoute: '/',
-      routes: {
-        '/list': (context) => const ListTasks(),
-        '/form': (context) => const CreateNewTask(),
-      },
-      onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
-      home: const ListTasks(),
-      debugShowCheckedModeBanner: false,
+      title: 'Task Tracker App',
+      theme: darkTheme,
+      themeMode: ThemeMode.dark,
+      home: const HomeScreen(),
     );
   }
 }
-
-RateMyApp rateMyApp = RateMyApp(
-  preferencesPrefix: 'Nous noter',
-  minDays: 0, // Show rate popup on first day of install.
-  minLaunches:
-      5, // Show rate popup after 5 launches of app after minDays is passed.
-);
