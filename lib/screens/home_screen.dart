@@ -204,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _callBack(catId) async {
     tasks = await dbHelper.getAllTasks();
     setState(() {
-      if (catId != null) {
+      if (catId != null && selectedCategory != null) {
         selectedCategory = allCategories.firstWhere((e) => e.id == catId);
       }
       _getfiltredTasks();
