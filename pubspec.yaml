@@ -18,6 +18,8 @@ dependencies:
   sqflite:
   path:
   flutter_colorpicker:
+  timezone:
+  flutter_local_notifications:
 
 dev_dependencies:
   flutter_test:

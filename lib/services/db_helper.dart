@@ -35,6 +35,7 @@ class DatabaseHelper {
         createdDate TEXT NOT NULL,
         completed INTEGER NOT NULL,
         categoryId INTEGER,
+        notificationEnabled INTEGER NOT NULL,
         FOREIGN KEY (categoryId) REFERENCES categories(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE) 
@@ -65,6 +66,17 @@ class DatabaseHelper {
 
   Future<int> changeTaskCompletion(Task task) async {
     task.completed = !task.completed!;
+    final db = await instance.database;
+    return await db.update(
+      'tasks',
+      task.toMap(),
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
+  }
+
+  Future<int> handleTaskNotification(Task task) async {
+    task.notificationEnabled = !task.notificationEnabled!;
     final db = await instance.database;
     return await db.update(
       'tasks',

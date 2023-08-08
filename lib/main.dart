@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/screens/home_screen.dart';
-//import 'package:to_do_list/services/notification_service.dart';
-//import 'package:timezone/timezone.dart' as tz;
-//import 'package:timezone/data/latest.dart' as tz;
+import 'package:to_do_list/services/notification_service.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
   // to ensure all the widgets are initialized.
- // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
   // to initialize the notificationservice.
-  //NotificationService().initNotification();
+  NotificationService().initNotification();
   runApp(const MyApp());
 }
 
@@ -25,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-   // tz.initializeTimeZones();
+    tz.initializeTimeZones();
   }
 
 // Thème clair
@@ -47,7 +46,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Task Tracker App',
-      theme: darkTheme,
+      theme: lightTheme,
       themeMode: ThemeMode.dark,
       home: const HomeScreen(),
     );

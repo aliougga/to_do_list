@@ -11,16 +11,17 @@ class Task {
   DateTime? dueDate;
   bool? completed;
   DateTime? createdDate;
+  bool? notificationEnabled;
 
-  Task({
-    this.id,
-    this.title,
-    this.description,
-    this.category,
-    this.dueDate,
-    this.completed,
-    this.createdDate,
-  });
+  Task(
+      {this.id,
+      this.title,
+      this.description,
+      this.category,
+      this.dueDate,
+      this.completed,
+      this.createdDate,
+      this.notificationEnabled});
   // Convertir un objet Task en Map
   Map<String, dynamic> toMap() {
     return {
@@ -31,20 +32,21 @@ class Task {
       'dueDate': DateUtils.dateToString(dueDate!),
       'completed': completed! ? 1 : 0,
       'createdDate': DateUtils.dateToString(createdDate!),
+      'notificationEnabled': notificationEnabled! ? 1 : 0
     };
   }
 
   // Créer un objet Task à partir d'un Map
   static Task fromMap(Map<String, dynamic> map) {
     return Task(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'],
-      category: TCategory(id: map['categoryId']),
-      dueDate: DateUtils.stringToDate(map['dueDate']),
-      completed: map['completed'] == 1,
-      createdDate: DateUtils.stringToDate(map['createdDate']),
-    );
+        id: map['id'],
+        title: map['title'],
+        description: map['description'],
+        category: TCategory(id: map['categoryId']),
+        dueDate: DateUtils.stringToDate(map['dueDate']),
+        completed: map['completed'] == 1,
+        createdDate: DateUtils.stringToDate(map['createdDate']),
+        notificationEnabled: map['notificationEnabled'] == 1);
   }
 
   // Créer une TNotifcation à partir d'une tache

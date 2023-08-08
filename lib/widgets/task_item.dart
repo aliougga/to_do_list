@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-//import 'package:to_do_list/services/notification_service.dart';
+import 'package:to_do_list/services/notification_service.dart';
 import '../utils/date_utils.dart' as date_utils;
 import '../models/task.dart';
 
-class TaskItem extends StatelessWidget {
+class TaskItem extends StatefulWidget {
   final Task task;
   final Function() onTap;
   final Function() onEdit;
@@ -19,34 +19,43 @@ class TaskItem extends StatelessWidget {
       required this.onValid});
 
   @override
+  State<TaskItem> createState() => _TaskItemState();
+}
+
+class _TaskItemState extends State<TaskItem> {
+  @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(
-        task.title!,
+        widget.task.title!,
         style: TextStyle(
-          fontStyle: task.completed! ? FontStyle.italic : FontStyle.normal,
-          decoration: task.completed!
+          fontStyle:
+              widget.task.completed! ? FontStyle.italic : FontStyle.normal,
+          decoration: widget.task.completed!
               ? TextDecoration.lineThrough
               : TextDecoration.none,
         ),
       ),
       subtitle: Text(
-        date_utils.DateUtils.formatDateTime(task.dueDate!),
+        date_utils.DateUtils.formatDateTime(widget.task.dueDate!),
         style: TextStyle(
-          fontStyle: task.completed! ? FontStyle.italic : FontStyle.normal,
+          fontStyle:
+              widget.task.completed! ? FontStyle.italic : FontStyle.normal,
         ),
       ),
       //tileColor: Colors.primaries[Random().nextInt(Colors.primaries.length)]
       //  [50],
       leading: Checkbox(
-        value: task.completed,
-        onChanged: (_) => onValid(),
+        value: widget.task.completed,
+        onChanged: (_) => widget.onValid(),
       ),
-      onTap: () => onTap(),
+      onTap: () => widget.onTap(),
       onLongPress: () => _showBottomSheet(context),
       trailing: GestureDetector(
-        child: const Icon(Icons.notifications_off),
-        onTap: () => _handleNotification(task),
+        child: !widget.task.notificationEnabled!
+            ? const Icon(Icons.notifications_off)
+            : const Icon(Icons.notifications_on),
+        onTap: () => {_handleNotification(widget.task)},
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -61,7 +70,7 @@ class TaskItem extends StatelessWidget {
         return Container(
           // Utiliser un Container pour appliquer la décoration
           decoration: BoxDecoration(
-    //        color: Colors.white,
+            //        color: Colors.white,
             borderRadius: BorderRadius.circular(50.0), // Bordure circulaire
           ),
           child: Column(
@@ -72,7 +81,7 @@ class TaskItem extends StatelessWidget {
                   Icons.edit,
                 ),
                 title: const Text('Edit'),
-                onTap: () => onEdit(),
+                onTap: () => widget.onEdit(),
               ),
               ListTile(
                 leading: const Icon(Icons.delete),
@@ -82,7 +91,7 @@ class TaskItem extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.check),
                 title: const Text('Mark as Done'),
-                onTap: () => onValid(),
+                onTap: () => widget.onValid(),
               ),
             ],
           ),
@@ -108,7 +117,7 @@ class TaskItem extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.pop(context); // Fermer la boîte de dialogue
-                onDelete();
+                widget.onDelete();
               },
               child: const Text('Delete'),
             ),
@@ -118,7 +127,11 @@ class TaskItem extends StatelessWidget {
     );
   }
 
-  _handleNotification(Task task){
-  //  NotificationService().showNotification(task.toNotification());
+  _handleNotification(Task task) {
+    task.notificationEnabled = !task.notificationEnabled!;
+    task.notificationEnabled!
+        ? NotificationService().showNotification(task.toNotification())
+        : NotificationService().remokeNotification(task.toNotification());
+    setState(() {});
   }
 }

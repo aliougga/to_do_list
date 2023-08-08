@@ -3,6 +3,7 @@ import 'package:to_do_list/models/task.dart';
 
 import '../models/category.dart';
 import '../services/db_helper.dart';
+import '../services/notification_service.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({Key? key}) : super(key: key);
@@ -18,6 +19,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   DateTime? _selectedDate;
   TCategory? _selectedCategory;
   List<TCategory> categories = [];
+  bool _enabled = false;
 
   Future<void> _loadCategories() async {
     final loadedCategories = await dbHelper.getAllCategories();
@@ -75,10 +77,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   Expanded(
                     child: _categoryCombo(),
                   ),
-                   const SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   GestureDetector(
                     onTap: () => _addCategoryWidget(),
-                    child:const CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 25.0,
                       child: Icon(
                         Icons.add,
@@ -126,6 +128,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   }
                 },
               ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Text("Enable notification"),
+                  Switch(
+                    value: _enabled,
+                    onChanged: (value) {
+                      setState(() {
+                        _enabled = value;
+                      });
+                    },
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -134,16 +151,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
             final newTask = Task(
-              title: _titleController.text,
-              dueDate: _selectedDate,
-              completed: false,
-              category: _selectedCategory,
-              createdDate: DateTime.now(),
-            );
+                title: _titleController.text,
+                dueDate: _selectedDate,
+                completed: false,
+                category: _selectedCategory,
+                createdDate: DateTime.now(),
+                notificationEnabled: _enabled);
 
             await _insertTask(newTask);
-            
-            Navigator.pop(context,  _selectedCategory?.id);
+
+            Navigator.pop(context, _selectedCategory?.id);
           }
         },
         child: const Icon(Icons.check),
@@ -152,7 +169,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   Future<void> _insertTask(Task task) async {
-    await dbHelper.insertTask(task);
+    int taskId = await dbHelper.insertTask(task);
+    if (task.notificationEnabled!) {
+      task.id = taskId;
+      NotificationService().showNotification(task.toNotification());
+    }
   }
 
   Widget _categoryCombo() {
@@ -186,7 +207,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      
       builder: (context) {
         return Container(
           padding: MediaQuery.of(context).viewInsets,
