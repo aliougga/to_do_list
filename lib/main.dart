@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:to_do_list/screens/home_screen.dart';
-import 'package:to_do_list/services/notification_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:to_do_list/services/notification_service.dart';
 
-void main() {
+Future<void> main() async {
   // to ensure all the widgets are initialized.
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Permission.notification.isDenied.then((value) {
+    if (value) {
+      Permission.notification.request();
+    }
+  });
   // to initialize the notificationservice.
   NotificationService().initNotification();
   runApp(const MyApp());
@@ -23,7 +28,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-
     tz.initializeTimeZones();
   }
 
@@ -31,6 +35,7 @@ class _MyAppState extends State<MyApp> {
   final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: Colors.white,
+    fontFamily: 'Poppins',
     //accentColor: Colors.black,
   );
 
@@ -38,6 +43,7 @@ class _MyAppState extends State<MyApp> {
   final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     primaryColor: Colors.black,
+    fontFamily: 'Poppins',
 
     //accentColor: Colors.white,
   );
@@ -47,7 +53,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Task Tracker App',
       theme: lightTheme,
-      themeMode: ThemeMode.dark,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.system,
       home: const HomeScreen(),
     );
   }

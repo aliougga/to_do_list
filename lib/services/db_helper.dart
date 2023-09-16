@@ -47,6 +47,10 @@ class DatabaseHelper {
         name TEXT NOT NULL
       )
     ''');
+
+    await db.execute('''
+      INSERT INTO categories(name) VALUES('Default')
+    ''');
   }
 
   Future<int> insertTask(Task task) async {
@@ -97,7 +101,7 @@ class DatabaseHelper {
 
   Future<List<Task>> getAllTasks() async {
     final db = await instance.database;
-    final result = await db.query('tasks');
+    final result = await db.query('tasks', orderBy: 'completed ASC, id ASC');
     return result.map((taskMap) => Task.fromMap(taskMap)).toList();
   }
 

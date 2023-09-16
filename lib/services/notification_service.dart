@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:to_do_list/models/notification.dart';
 import 'package:to_do_list/utils/date_utils.dart';
@@ -30,24 +31,30 @@ class NotificationService {
   }
 
   Future<void> showNotification(TNotification notification) async {
-    print("ENABLED NOTIFICATION.......... ");
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-        notification.taskId!,
-        "Reminder",
-        "You have ${notification.title!} at ${DateUtils.formatDateTime(notification.dateTime!)}",
-        tz.TZDateTime.from(notification.dateTime!, tz.local),
-        // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 1)),
-        const NotificationDetails(
-          android: AndroidNotificationDetails('channel id', 'channel name'),
-        ),
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.wallClockTime,
-        matchDateTimeComponents: DateTimeComponents.time);
+   var granted = await Permission.notification.isGranted;
+
+     if (!granted) {
+        Permission.notification.request();
+      } else {
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+            notification.taskId!,
+            "Reminder",
+            "You have ${notification.title!} at ${DateUtils.formatDateTime(notification.dateTime!)}",
+            tz.TZDateTime.from(notification.dateTime!, tz.local),
+            // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 1)),
+            const NotificationDetails(
+              android: AndroidNotificationDetails('channel id', 'channel name'),
+            ),
+            // androidAllowWhileIdle: true,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.wallClockTime,
+            matchDateTimeComponents: DateTimeComponents.time);
+      }
+    
+  
   }
 
-  Future<void> remokeNotification(TNotification notification) async {
-    print("CANCEL NOTIFICATION............... ");
-    await flutterLocalNotificationsPlugin.cancel(notification.id!);
+  Future<void> remokeNotification(int notificationId) async {
+    await flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 }

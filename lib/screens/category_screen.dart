@@ -32,7 +32,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         itemBuilder: (context, index) {
           final category = categories[index];
           return ListTile(
-            //    trailing: CircleAvatar(backgroundColor: category.color,),
+          //  trailing: CircleAvatar(backgroundColor: category.color,),
             title: Dismissible(
               key: Key(category.id.toString()),
               direction: DismissDirection.endToStart,

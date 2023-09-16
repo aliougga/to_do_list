@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/models/task.dart';
-
+import 'package:to_do_list/utils/date_utils.dart' as dt;
 import '../models/category.dart';
 import '../services/db_helper.dart';
 import '../services/notification_service.dart';
@@ -92,7 +92,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               const SizedBox(height: 16),
               TextField(
                 decoration: InputDecoration(
-                  hintText: "Choose a date and time",
+                  hintText: _selectedDate == null
+                      ? "Choose a date and time"
+                      : dt.DateUtils.formatDateTime(_selectedDate!),
                   prefixIcon: const Icon(Icons.calendar_today),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -100,32 +102,42 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 readOnly: true,
                 onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
+                  DateTime? pickedDate;
+                  showDatePicker(
                     context: context,
                     initialDate: _selectedDate ?? DateTime.now(),
                     firstDate: DateTime(1900),
                     lastDate: DateTime(2100),
+                  ).then(
+                    (value) => {
+                      pickedDate = value,
+                      if (pickedDate != null)
+                        {
+                          showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.fromDateTime(
+                                _selectedDate ?? DateTime.now()),
+                          ).then(
+                            (value) => {
+                              if (value != null)
+                                {
+                                  setState(
+                                    () {
+                                      _selectedDate = DateTime(
+                                        pickedDate!.year,
+                                        pickedDate!.month,
+                                        pickedDate!.day,
+                                        value.hour,
+                                        value.minute,
+                                      );
+                                    },
+                                  )
+                                }
+                            },
+                          )
+                        }
+                    },
                   );
-
-                  if (pickedDate != null) {
-                    final TimeOfDay? pickedTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.fromDateTime(
-                          _selectedDate ?? DateTime.now()),
-                    );
-
-                    if (pickedTime != null) {
-                      setState(() {
-                        _selectedDate = DateTime(
-                          pickedDate.year,
-                          pickedDate.month,
-                          pickedDate.day,
-                          pickedTime.hour,
-                          pickedTime.minute,
-                        );
-                      });
-                    }
-                  }
                 },
               ),
               const SizedBox(height: 16),
@@ -136,9 +148,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   Switch(
                     value: _enabled,
                     onChanged: (value) {
-                      setState(() {
-                        _enabled = value;
-                      });
+                      setState(
+                        () {
+                          _enabled = value;
+                        },
+                      );
                     },
                   ),
                 ],
@@ -150,17 +164,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
-            final newTask = Task(
-                title: _titleController.text,
-                dueDate: _selectedDate,
-                completed: false,
-                category: _selectedCategory,
-                createdDate: DateTime.now(),
-                notificationEnabled: _enabled);
+            if (_selectedDate != null) {
+              final newTask = Task(
+                  title: _titleController.text,
+                  dueDate: _selectedDate,
+                  completed: false,
+                  category: _selectedCategory,
+                  createdDate: DateTime.now(),
+                  notificationEnabled: _enabled);
 
-            await _insertTask(newTask);
-
-            Navigator.pop(context, _selectedCategory?.id);
+              _insertTask(newTask);
+              Navigator.pop(context, _selectedCategory?.id);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Please choose a date")));
+            }
           }
         },
         child: const Icon(Icons.check),
@@ -172,7 +190,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     int taskId = await dbHelper.insertTask(task);
     if (task.notificationEnabled!) {
       task.id = taskId;
-      NotificationService().showNotification(task.toNotification());
+      await NotificationService().showNotification(task.toNotification());
     }
   }
 
@@ -190,64 +208,71 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           _selectedCategory = newValue;
         });
       },
-      items: categories.map<DropdownMenuItem<TCategory>>((category) {
-        return DropdownMenuItem<TCategory>(
-          value: category,
-          child: Text(
-              category.name!), // Remplacez categoryName par le champ approprié
-        );
-      }).toList(),
+      items: categories.map<DropdownMenuItem<TCategory>>(
+        (category) {
+          return DropdownMenuItem<TCategory>(
+            value: category,
+            child: Text(category
+                .name!), // Remplacez categoryName par le champ approprié
+          );
+        },
+      ).toList(),
     );
   }
 
   Future<Widget?> _addCategoryWidget() async {
-    final _formKey = GlobalKey<FormState>();
-    final _nameController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
 
     return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width -
+            10, // here increase or decrease in width
+      ),
       builder: (context) {
-        return Container(
-          padding: MediaQuery.of(context).viewInsets,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: _nameController,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter a category name';
-                      }
-                      return null;
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Category Name',
-                    ),
+        return Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: nameController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter a category name';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Category Name',
                   ),
                 ),
-                Container(
-                  alignment: Alignment.bottomRight,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final category = TCategory(
-                          name: _nameController.text,
-                        );
-                        await _insertCategory(category);
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text('Add Category'),
-                  ),
+              ),
+              Container(
+                padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
+                alignment: Alignment.bottomRight,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      final category = TCategory(
+                        name: nameController.text,
+                      );
+                      _insertCategory(category);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('Add Category'),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

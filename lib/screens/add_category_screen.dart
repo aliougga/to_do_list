@@ -92,7 +92,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       name: _nameController.text,
                       //color: _selectedColor
                     );
-                    await dbHelper.insertCategory(newCategory);
+                    dbHelper.insertCategory(newCategory);
                     Navigator.pop(context);
                   }
                 },

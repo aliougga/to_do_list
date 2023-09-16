@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/models/category.dart';
-
 import '../services/db_helper.dart';
 
 class EditCategoryScreen extends StatefulWidget {
@@ -57,7 +56,7 @@ class _EditCategoryScreenState extends State<EditCategoryScreen> {
                       id: widget.category.id,
                       name: _nameController.text,
                     );
-                    await dbHelper.updateCategory(updatedCategory);
+                    dbHelper.updateCategory(updatedCategory);
                     Navigator.pop(context);
                   }
                 },

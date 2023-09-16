@@ -48,6 +48,9 @@ class _TaskItemState extends State<TaskItem> {
       leading: Checkbox(
         value: widget.task.completed,
         onChanged: (_) => widget.onValid(),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
       onTap: () => widget.onTap(),
       onLongPress: () => _showBottomSheet(context),
@@ -65,15 +68,20 @@ class _TaskItemState extends State<TaskItem> {
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width -
+            10, // here increase or decrease in width
+      ),
+      enableDrag: true,
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          // Utiliser un Container pour appliquer la décoration
-          decoration: BoxDecoration(
-            //        color: Colors.white,
-            borderRadius: BorderRadius.circular(50.0), // Bordure circulaire
-          ),
+        return SizedBox(
+          height:  !widget.task.completed! ? 200 : 150,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
@@ -81,18 +89,28 @@ class _TaskItemState extends State<TaskItem> {
                   Icons.edit,
                 ),
                 title: const Text('Edit'),
-                onTap: () => widget.onEdit(),
+                onTap: () => {
+                  Navigator.of(context).pop(),
+                  widget.onEdit(),
+                },
               ),
               ListTile(
-                leading: const Icon(Icons.delete),
-                title: const Text('Delete'),
-                onTap: () => _showDeleteConfirmationDialog(context),
-              ),
-              ListTile(
-                leading: const Icon(Icons.check),
-                title: const Text('Mark as Done'),
-                onTap: () => widget.onValid(),
-              ),
+                  leading: const Icon(Icons.delete),
+                  title: const Text('Delete'),
+                  onTap: () => {
+                        Navigator.of(context).pop(),
+                        _showDeleteConfirmationDialog(context),
+                      }),
+              !widget.task.completed!
+                  ? ListTile(
+                      leading: const Icon(Icons.check),
+                      title: const Text('Mark as Done'),
+                      onTap: () => {
+                        Navigator.of(context).pop(),
+                        widget.onValid(),
+                      },
+                    )
+                  : Container(),
             ],
           ),
         );
@@ -105,6 +123,9 @@ class _TaskItemState extends State<TaskItem> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: const Text('Delete Task'),
           content: const Text('Are you sure you want to delete this task?'),
           actions: [
@@ -131,7 +152,7 @@ class _TaskItemState extends State<TaskItem> {
     task.notificationEnabled = !task.notificationEnabled!;
     task.notificationEnabled!
         ? NotificationService().showNotification(task.toNotification())
-        : NotificationService().remokeNotification(task.toNotification());
+        : NotificationService().remokeNotification(task.id!);
     setState(() {});
   }
 }

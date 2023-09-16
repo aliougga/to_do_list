@@ -76,12 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   key: Key(task.id.toString()),
                   direction: DismissDirection.endToStart,
                   background: Container(
-                    // color: Colors.red,
+                    color: Colors.red,
                     alignment: Alignment.centerRight,
                     padding: const EdgeInsets.only(right: 20),
                     child: const Icon(
                       Icons.delete,
-                      // color: Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                   onDismissed: (_) => _deleteTask(task),
@@ -109,14 +109,12 @@ class _HomeScreenState extends State<HomeScreen> {
   //Retourne le menu des categories
   Widget _getDropdown() {
     return DropdownButton<TCategory>(
+      dropdownColor: Theme.of(context).primaryColorDark,
       value: selectedCategory,
       icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
       iconSize: 24,
       isExpanded: false,
-      //focusColor: Colors.blue,
-      style: const TextStyle(
-          //color: Colors.white,
-          fontSize: 20),
+      style: const TextStyle(color: Colors.white, fontSize: 20),
       onChanged: (newValue) {
         setState(() {
           selectedCategory = newValue!;
