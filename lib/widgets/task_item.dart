@@ -73,7 +73,7 @@ class _TaskItemState extends State<TaskItem> {
       ),
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width -
-            10, // here increase or decrease in width
+            10, 
       ),
       enableDrag: true,
       context: context,

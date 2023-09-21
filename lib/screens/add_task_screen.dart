@@ -231,48 +231,50 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         borderRadius: BorderRadius.circular(10),
       ),
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width -
-            10, // here increase or decrease in width
+        maxWidth: MediaQuery.of(context).size.width - 10,
       ),
       builder: (context) {
-        return Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  controller: nameController,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter a category name';
-                    }
-                    return null;
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Category Name',
+        return Container(
+          padding: MediaQuery.of(context).viewInsets,
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    controller: nameController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a category name';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Category Name',
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
-                alignment: Alignment.bottomRight,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      final category = TCategory(
-                        name: nameController.text,
-                      );
-                      _insertCategory(category);
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Add Category'),
+                Container(
+                  padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
+                  alignment: Alignment.bottomRight,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (formKey.currentState!.validate()) {
+                        final category = TCategory(
+                          name: nameController.text,
+                        );
+                        _insertCategory(category);
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Add Category'),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

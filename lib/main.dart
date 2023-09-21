@@ -4,6 +4,8 @@ import 'package:to_do_list/screens/home_screen.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:to_do_list/services/notification_service.dart';
 
+
+
 Future<void> main() async {
   // to ensure all the widgets are initialized.
   WidgetsFlutterBinding.ensureInitialized();
