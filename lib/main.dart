@@ -4,8 +4,6 @@ import 'package:to_do_list/screens/home_screen.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:to_do_list/services/notification_service.dart';
 
-
-
 Future<void> main() async {
   // to ensure all the widgets are initialized.
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,21 +31,37 @@ class _MyAppState extends State<MyApp> {
     tz.initializeTimeZones();
   }
 
-// Thème clair
-  final ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
-    primaryColor: Colors.white,
-    fontFamily: 'Poppins',
-    //accentColor: Colors.black,
+  ThemeData lightTheme = ThemeData.light().copyWith(
+    colorScheme: const ColorScheme.light(
+      primary: Colors.blue,
+      secondary: Colors.blueAccent,
+    ),
+    appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(color: Colors.white)),
+    buttonTheme: const ButtonThemeData(
+      buttonColor: Colors.blue,
+      textTheme: ButtonTextTheme.primary,
+    ),
+    iconTheme: const IconThemeData(
+      color: Colors.blue,
+    ),
   );
 
-// Thème sombre
-  final ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
-    primaryColor: Colors.black,
-    fontFamily: 'Poppins',
-
-    //accentColor: Colors.white,
+  ThemeData darkTheme = ThemeData.dark().copyWith(
+    colorScheme: ColorScheme.dark(
+      primary: Colors.blue.shade500,
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.grey.shade900,
+      elevation: 0,
+    ),
+    scaffoldBackgroundColor: Colors.grey.shade900,
+    iconTheme: IconThemeData(color: Colors.blue.shade400),
+    buttonTheme: ButtonThemeData(
+      colorScheme: ColorScheme.dark(primary: Colors.grey.shade900),
+    ),
   );
 
   @override
@@ -56,7 +70,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Task Tracker App',
       theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       home: const HomeScreen(),
     );
   }

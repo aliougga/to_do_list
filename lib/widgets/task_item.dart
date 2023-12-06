@@ -26,11 +26,24 @@ class _TaskItemState extends State<TaskItem> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      tileColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+      leading: Checkbox(
+        value: widget.task.completed,
+        onChanged: (_) => widget.onValid(),
+        activeColor: Theme.of(context).colorScheme.secondary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
       title: Text(
         widget.task.title!,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontStyle:
-              widget.task.completed! ? FontStyle.italic : FontStyle.normal,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
           decoration: widget.task.completed!
               ? TextDecoration.lineThrough
               : TextDecoration.none,
@@ -39,30 +52,24 @@ class _TaskItemState extends State<TaskItem> {
       subtitle: Text(
         date_utils.DateUtils.formatDateTime(widget.task.dueDate!),
         style: TextStyle(
-          fontStyle:
-              widget.task.completed! ? FontStyle.italic : FontStyle.normal,
-        ),
+            fontSize: 14,
+            fontStyle:
+                widget.task.completed! ? FontStyle.italic : FontStyle.normal),
       ),
-      //tileColor: Colors.primaries[Random().nextInt(Colors.primaries.length)]
-      //  [50],
-      leading: Checkbox(
-        value: widget.task.completed,
-        onChanged: (_) => widget.onValid(),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+      trailing: IconButton(
+        icon: Icon(
+          widget.task.notificationEnabled!
+              ? Icons.notifications_active_outlined
+              : Icons.notifications_off_outlined,
+          size: 28,
         ),
+        onPressed: () {
+          _handleNotification(widget.task);
+        },
       ),
+
       onTap: () => widget.onTap(),
       onLongPress: () => _showBottomSheet(context),
-      trailing: GestureDetector(
-        child: !widget.task.notificationEnabled!
-            ? const Icon(Icons.notifications_off)
-            : const Icon(Icons.notifications_on),
-        onTap: () => {_handleNotification(widget.task)},
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
     );
   }
 
@@ -72,14 +79,13 @@ class _TaskItemState extends State<TaskItem> {
         borderRadius: BorderRadius.circular(10),
       ),
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width -
-            10, 
+        maxWidth: MediaQuery.of(context).size.width - 10,
       ),
       enableDrag: true,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(
-          height:  !widget.task.completed! ? 200 : 150,
+          height: !widget.task.completed! ? 200 : 150,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,

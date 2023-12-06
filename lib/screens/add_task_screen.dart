@@ -47,7 +47,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Task'),
+        title: const Text(
+          'New Task',
+          style: TextStyle(
+            fontSize: 20,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -181,6 +186,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             }
           }
         },
+        shape: const CircleBorder(),
         child: const Icon(Icons.check),
       ),
     );

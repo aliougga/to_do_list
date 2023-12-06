@@ -56,7 +56,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Task'),
+        title: const Text(
+          'Edit Task',
+          style: TextStyle(
+            fontSize: 20,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -189,6 +194,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             }
           }
         },
+        shape: const CircleBorder(),
         child: const Icon(Icons.check),
       ),
     );

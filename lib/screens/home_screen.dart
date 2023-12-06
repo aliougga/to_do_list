@@ -72,44 +72,30 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: filteredTasks.length,
               itemBuilder: (context, index) {
                 final task = filteredTasks[index];
-                return Dismissible(
-                  key: Key(task.id.toString()),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    child: const Icon(
-                      Icons.delete,
-                      color: Colors.white,
-                    ),
-                  ),
-                  onDismissed: (_) => _deleteTask(task),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    child: TaskItem(
-                      task: task,
-                      onTap: () => () {},
-                      onEdit: () => _navigateToEditTaskScreen(task),
-                      onDelete: () => _deleteTask(task),
-                      onValid: () => _toggleTaskCompletion(task),
-                    ),
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                  child: TaskItem(
+                    task: task,
+                    onTap: () => () {},
+                    onEdit: () => _navigateToEditTaskScreen(task),
+                    onDelete: () => _deleteTask(task),
+                    onValid: () => _toggleTaskCompletion(task),
                   ),
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddTaskScreen,
+        shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  //Retourne le menu des categories
   Widget _getDropdown() {
     return DropdownButton<TCategory>(
-      dropdownColor: Theme.of(context).primaryColorDark,
+      dropdownColor: Theme.of(context).primaryColor,
       value: selectedCategory,
       icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
       iconSize: 24,
@@ -135,22 +121,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  //formulaire de recherche dans l'appBar
   Widget _appBarSearchForm() {
     return TextField(
-      style: const TextStyle(
-        color: Colors.white,
-      ),
+      style: const TextStyle(color: Colors.white, fontSize: 18),
+      autofocus: true,
+      cursorColor: Colors.white,
       decoration: const InputDecoration(
-        //  prefixIcon: const Icon(Icons.search, color: Colors.white),
         hintText: 'Enter a title',
         hintStyle: TextStyle(color: Colors.white),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(),
-        ),
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        contentPadding:
+            EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
       ),
       onChanged: (value) {
         setState(() {
