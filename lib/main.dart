@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
-//import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:rate_my_app/rate_my_app.dart';
-import 'package:to_do_list/screens/create_task/create_new_task.dart';
-import 'package:to_do_list/screens/list_task/list_tasks.dart';
-import 'package:to_do_list/theme/theme.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:to_do_list/utils/navigator_context.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:to_do_list/screens/home_screen.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:to_do_list/services/notification_service.dart';
 
-void main() {
+Future<void> main() async {
+  // to ensure all the widgets are initialized.
   WidgetsFlutterBinding.ensureInitialized();
-  // MobileAds.instance.initialize();
-  return runApp(const MyApp());
+  await Permission.notification.isDenied.then((value) {
+    if (value) {
+      Permission.notification.request();
+    }
+  });
+  // to initialize the notificationservice.
+  NotificationService().initNotification();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -22,27 +26,52 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+    tz.initializeTimeZones();
+  }
+
+  ThemeData lightTheme = ThemeData.light().copyWith(
+    colorScheme: const ColorScheme.light(
+      primary: Colors.blue,
+      secondary: Colors.blueAccent,
+    ),
+    appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(color: Colors.white)),
+    buttonTheme: const ButtonThemeData(
+      buttonColor: Colors.blue,
+      textTheme: ButtonTextTheme.primary,
+    ),
+    iconTheme: const IconThemeData(
+      color: Colors.blue,
+    ),
+  );
+
+  ThemeData darkTheme = ThemeData.dark().copyWith(
+    colorScheme: ColorScheme.dark(
+      primary: Colors.blue.shade500,
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.grey.shade900,
+      elevation: 0,
+    ),
+    scaffoldBackgroundColor: Colors.grey.shade900,
+    iconTheme: IconThemeData(color: Colors.blue.shade400),
+    buttonTheme: ButtonThemeData(
+      colorScheme: ColorScheme.dark(primary: Colors.grey.shade900),
+    ),
+  );
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: theme1,
-      navigatorKey: NavigationService.navigatorKey,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      initialRoute: '/',
-      routes: {
-        '/list': (context) => const ListTasks(),
-        '/form': (context) => const CreateNewTask(),
-      },
-      onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
-      home: const ListTasks(),
-      debugShowCheckedModeBanner: false,
+      title: 'Task Tracker App',
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.dark,
+      home: const HomeScreen(),
     );
   }
 }
-
-RateMyApp rateMyApp = RateMyApp(
-  preferencesPrefix: 'Nous noter',
-  minDays: 0, // Show rate popup on first day of install.
-  minLaunches:
-      5, // Show rate popup after 5 launches of app after minDays is passed.
-);

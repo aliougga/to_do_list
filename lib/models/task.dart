@@ -1,54 +1,61 @@
-import 'package:to_do_list/utils/dbhelper.dart';
+import 'package:to_do_list/models/notification.dart';
+import 'package:to_do_list/utils/date_utils.dart';
+
+import 'category.dart';
 
 class Task {
-  int? taskId;
-  String? taskTitle;
-  String? taskDate;
-  String? taskTime;
-  bool? isTaskDone;
-  int? myCategory;
+  int? id;
+  String? title;
+  String? description;
+  TCategory? category;
+  DateTime? dueDate;
+  bool? completed;
+  DateTime? createdDate;
+  bool? notificationEnabled;
 
   Task(
-      {this.taskId,
-      required this.taskTitle,
-      required this.taskDate,
-      required this.taskTime,
-      this.isTaskDone,
-      this.myCategory});
-
-  Task.fromMap(Map<String, dynamic> map) {
-    taskId = map['id'];
-    taskTitle = map['title'];
-    taskDate = map['date'];
-    taskTime = map['time'];
-    isTaskDone = isDoneFromString(map['is_done']);
-    myCategory = map['my_category'];
-  }
-
+      {this.id,
+      this.title,
+      this.description,
+      this.category,
+      this.dueDate,
+      this.completed,
+      this.createdDate,
+      this.notificationEnabled});
+  // Convertir un objet Task en Map
   Map<String, dynamic> toMap() {
     return {
-      DatabaseHelper.taskId: taskId,
-      DatabaseHelper.taskTitle: taskTitle,
-      DatabaseHelper.taskDate: taskDate,
-      DatabaseHelper.taskTime: taskTime,
-      DatabaseHelper.taskDone: isDoneAsInt(isTaskDone),
-      DatabaseHelper.taskCategory: myCategory
+      'id': id,
+      'title': title,
+      'description': description,
+      'categoryId': category!.id,
+      'dueDate': DateUtils.dateToString(dueDate!),
+      'completed': completed! ? 1 : 0,
+      'createdDate': DateUtils.dateToString(createdDate!),
+      'notificationEnabled': notificationEnabled! ? 1 : 0
     };
   }
 
-  int isDoneAsInt(val) {
-    if (val == true) {
-      return 1;
-    } else {
-      return 0;
-    }
+  // Créer un objet Task à partir d'un Map
+  static Task fromMap(Map<String, dynamic> map) {
+    return Task(
+        id: map['id'],
+        title: map['title'],
+        description: map['description'],
+        category: TCategory(id: map['categoryId']),
+        dueDate: DateUtils.stringToDate(map['dueDate']),
+        completed: map['completed'] == 1,
+        createdDate: DateUtils.stringToDate(map['createdDate']),
+        notificationEnabled: map['notificationEnabled'] == 1);
   }
 
-  bool isDoneFromString(val) {
-    if (val == 1) {
-      return true;
-    } else {
-      return false;
-    }
+  // Créer une TNotifcation à partir d'une tache
+  TNotification toNotification() {
+    return TNotification(
+        id: id,
+        taskId: id,
+        dateTime: dueDate,
+        title: title,
+        description: description);
   }
 }

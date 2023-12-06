@@ -1,25 +1,30 @@
-import 'package:to_do_list/utils/dbhelper.dart';
+class TCategory {
+  int? id;
+  String? name;
 
-class Category {
-  int? categryId;
-  String? categoryName;
+  TCategory({
+    this.id,
+    this.name,
+  });
 
-  Category({this.categryId, this.categoryName});
-
-  Category.fromMap(Map<String, dynamic> map) {
-    categryId = map['id_category'];
-    categoryName = map['name_category'];
-  }
-
+  // Convertir un objet Category en Map
   Map<String, dynamic> toMap() {
     return {
-      DatabaseHelper.categoryId: categryId,
-      DatabaseHelper.categoryName: categoryName,
+      'id': id,
+      'name': name,
     };
+  }
+
+  // Créer un objet Category à partir d'un Map
+  static TCategory fromMap(Map<String, dynamic> map) {
+    return TCategory(
+      id: map['id'],
+      name: map['name'],
+    );
   }
 
   @override
   String toString() {
-    return categoryName!;
+    return name!;
   }
 }
