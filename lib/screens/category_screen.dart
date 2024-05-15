@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/models/category.dart';
 import 'package:to_do_list/widgets/category_item.dart';
+
 import '../services/db_helper.dart';
 import 'add_category_screen.dart';
 import 'edit_category_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({Key? key}) : super(key: key);
+
   @override
   State<CategoryScreen> createState() => _CategoryScreenState();
 }
@@ -32,7 +34,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         itemBuilder: (context, index) {
           final category = categories[index];
           return ListTile(
-          //  trailing: CircleAvatar(backgroundColor: category.color,),
+            //  trailing: CircleAvatar(backgroundColor: category.color,),
             title: Dismissible(
               key: Key(category.id.toString()),
               direction: DismissDirection.endToStart,

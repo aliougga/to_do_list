@@ -22,6 +22,7 @@ class Task {
       this.completed,
       this.createdDate,
       this.notificationEnabled});
+
   // Convertir un objet Task en Map
   Map<String, dynamic> toMap() {
     return {

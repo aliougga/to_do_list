@@ -18,8 +18,9 @@ dependencies:
   sqflite:
   path:
   flutter_colorpicker:
-  timezone:
   flutter_local_notifications:
+  flutter_timezone:
+  rxdart:
   intl: ^0.18.0
   permission_handler: ^11.0.0
 

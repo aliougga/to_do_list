@@ -29,11 +29,10 @@ class TNotification {
   // Créer un objet Notification à partir d'un Map
   static TNotification fromMap(Map<String, dynamic> map) {
     return TNotification(
-      id: map['id'],
-      taskId: map['taskId'],
-      title: map['title'],
-      dateTime: DateUtils.stringToDate(map['dateTime']),
-      description: map['description']
-    );
+        id: map['id'],
+        taskId: map['taskId'],
+        title: map['title'],
+        dateTime: DateUtils.stringToDate(map['dateTime']),
+        description: map['description']);
   }
 }

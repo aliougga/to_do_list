@@ -31,27 +31,25 @@ class NotificationService {
   }
 
   Future<void> showNotification(TNotification notification) async {
-   var granted = await Permission.notification.isGranted;
+    var granted = await Permission.notification.isGranted;
 
-     if (!granted) {
-        Permission.notification.request();
-      } else {
-        await flutterLocalNotificationsPlugin.zonedSchedule(
-            notification.taskId!,
-            "Reminder",
-            "You have ${notification.title!} at ${DateUtils.formatDateTime(notification.dateTime!)}",
-            tz.TZDateTime.from(notification.dateTime!, tz.local),
-            // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 1)),
-            const NotificationDetails(
-              android: AndroidNotificationDetails('channel id', 'channel name'),
-            ),
-            // androidAllowWhileIdle: true,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.wallClockTime,
-            matchDateTimeComponents: DateTimeComponents.time);
-      }
-    
-  
+    if (!granted) {
+      Permission.notification.request();
+    } else {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+          notification.taskId!,
+          "Reminder",
+          "You have ${notification.title!} at ${DateUtils.formatDateTime(notification.dateTime!)}",
+          tz.TZDateTime.from(notification.dateTime!, tz.local),
+          // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 1)),
+          const NotificationDetails(
+            android: AndroidNotificationDetails('channel id', 'channel name'),
+          ),
+          // androidAllowWhileIdle: true,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time);
+    }
   }
 
   Future<void> remokeNotification(int notificationId) async {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:to_do_list/local_notifications.dart';
 import 'package:to_do_list/models/task.dart';
+import 'package:to_do_list/screens/another_page.dart';
 import 'package:to_do_list/widgets/task_item.dart';
 import '../models/category.dart';
 import '../services/db_helper.dart';
@@ -27,8 +29,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    listenNotification();
     _loadCategories();
     _loadData();
+  }
+
+  listenNotification(){
+    print("Listening to notification");
+
+    LocalNotifications.onClickNotification.stream.listen((event) {
+      Navigator.push(context, MaterialPageRoute(builder: (context)=> AnotherPage(event)));
+    });
   }
 
   @override

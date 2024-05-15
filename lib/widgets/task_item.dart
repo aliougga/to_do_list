@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_list/services/notification_service.dart';
-import '../utils/date_utils.dart' as date_utils;
+
 import '../models/task.dart';
+import '../utils/date_utils.dart' as date_utils;
 
 class TaskItem extends StatefulWidget {
   final Task task;
@@ -67,7 +68,6 @@ class _TaskItemState extends State<TaskItem> {
           _handleNotification(widget.task);
         },
       ),
-
       onTap: () => widget.onTap(),
       onLongPress: () => _showBottomSheet(context),
     );

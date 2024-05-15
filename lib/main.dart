@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:to_do_list/screens/home_screen.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:to_do_list/local_notifications.dart';
+import 'package:to_do_list/screens/home_screen.dart';
 import 'package:to_do_list/services/notification_service.dart';
 
 Future<void> main() async {
-  // to ensure all the widgets are initialized.
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotifications.init();
   await Permission.notification.isDenied.then((value) {
     if (value) {
       Permission.notification.request();
     }
   });
-  // to initialize the notificationservice.
+
   NotificationService().initNotification();
   runApp(const MyApp());
 }

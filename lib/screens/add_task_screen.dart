@@ -1,9 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:to_do_list/local_notifications.dart';
 import 'package:to_do_list/models/task.dart';
 import 'package:to_do_list/utils/date_utils.dart' as dt;
+
 import '../models/category.dart';
 import '../services/db_helper.dart';
 import '../services/notification_service.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({Key? key}) : super(key: key);
@@ -32,7 +39,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   Future<void> _insertCategory(TCategory category) async {
+    final List<String> currentTimeZone = await FlutterTimezone.getAvailableTimezones();
     await dbHelper.insertCategory(category);
+    print("\n\n\n\n\nINSERT DATA : ${tz.local.currentTimeZone}\n\n\n\n\n");
+    LocalNotifications.showScheduleNotification(
+        title: "Schedule Notification",
+        body: "This is a Schedule Notification",
+        payload: "This is schedule data");
     _loadCategories();
     setState(() {});
   }
@@ -218,8 +231,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         (category) {
           return DropdownMenuItem<TCategory>(
             value: category,
-            child: Text(category
-                .name!), // Remplacez categoryName par le champ approprié
+            child: Text(category.name!),
           );
         },
       ).toList(),
